@@ -21,13 +21,12 @@ class SistemaOrcamento:
         if not nome or not telefone or not endereco or not email:
             raise ValueError("Todos os campos são obrigatórios.")
 
-        cliente = Cliente(nome, self.proximo_id_cliente,
-                          telefone, endereco, email)
+        cliente = Cliente(nome, self.proximo_id_cliente,telefone, endereco, email)
         self.clientes.append(cliente)
         self.proximo_id_cliente += 1
         return cliente
 
-    def cadastrar_orcamento(self, cliente_id, tipo_de_cerca, metragem, portao, valor_estimado):
+    def cadastrar_orcamento(self, cliente_id, tipo_de_cerca, metragem, portao, valor_estimado, material, t_painel, cor):
         """
         Busca o cliente pelo ID fornecido.
         Se existir, cria um orçamento associado ao cliente e adiciona à lista.
@@ -37,8 +36,7 @@ class SistemaOrcamento:
         if not cliente:
             raise ValueError("Cliente não encontrado.")
 
-        orcamento = Orcamento(cliente, tipo_de_cerca,
-                              metragem, portao, valor_estimado)
+        orcamento = Orcamento(cliente, tipo_de_cerca,metragem, portao, valor_estimado, material, t_painel,cor)
         self.orcamentos.append(orcamento)
         return orcamento
 
