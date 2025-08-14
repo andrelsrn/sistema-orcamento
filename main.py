@@ -1,21 +1,45 @@
 from cliente import Cliente
 from orcamento import Orcamento
 from sistema import SistemaOrcamento
+from banco_json import carregar_cliente, salvar_cliente
+from banco_json import carregar_orcamentos, salvar_orcamento
+
 
 sistema = SistemaOrcamento()
 
+# Carregar clientes salvos no JSON
+clientes_salvos = carregar_cliente()
+for c in clientes_salvos:
+    # Cadastrar cliente no sistema a partir do JSON
+    sistema.cadastrar_cliente(
+        c['nome'], c['telefone'], c['endereco'], c['email'])
+
+# Carregar orçamentos salvos no JSON
+orcamentos_salvos = carregar_orcamentos()
+for o in orcamentos_salvos:
+    sistema.cadastrar_orcamento(
+        o['cliente_id'],
+        o['tipo_de_cerca'],
+        o['metragem'],
+        o['portao'],
+        o['valor_estimado'],
+        o['tipo_de_cerca'],       # ou outro parâmetro necessário
+        o['tamanho_painel'],
+        o['cor_material']
+    )
+
 
 def exibir_menu():
-    print('-='* 20)
+    print('-=' * 20)
     print('CADASTRO DE ORCAMENTOS'.center(40))
-    print('-='* 20)
+    print('-=' * 20)
 
     print("""    [1] - Cadastrar cliente
     [2] - Cadastrar orcamento
     [3] - Listar orcamentos
     [4] - Consultar orcamento por nome
     [5] - Sair""")
-    print('-='* 20)
+    print('-=' * 20)
 
 
 while True:
@@ -37,6 +61,7 @@ while True:
             else:
                 break
         while True:
+
             endereco = input("Digite o endereco do cliente: ")
             if not endereco.strip():
                 print("Endereço não pode ser vazio. Tente novamente.")
@@ -51,7 +76,17 @@ while True:
         try:
             cliente = sistema.cadastrar_cliente(
                 nome, telefone, endereco, email)
+            # Persistência no JSON
+            salvar_cliente({
+                "id": cliente.id,
+                "nome": cliente.nome,
+                "telefone": cliente.telefone,
+                "endereco": cliente.endereco,
+                "email": cliente.email
+            })
+
             print(f"Cliente cadastrado com sucesso: {cliente}")
+
         except ValueError as e:
             print(f"Erro ao cadastrar cliente: {e}")
 
@@ -117,16 +152,29 @@ while True:
                         continue
                     break
             else:
-                cor_material = "N/A"  # Para materiais que não sejam PVC, pode deixar vazio
+                cor_material = "N/A"
 
             metragem = float(
                 input("Digite a metragem da cerca (LINEAR FEET): "))
             portao = input("Digite se há portão (sim/não): ").lower() == 'sim'
             valor_estimado = float(input("Digite o valor estimado: "))
 
+            # Cadastra o orçamento no sistema
             orcamento = sistema.cadastrar_orcamento(
                 cliente_id, tipo_de_cerca, metragem, portao, valor_estimado, tipo_de_cerca, t_painel, cor_material
             )
+
+            # Persistência no JSON
+            salvar_orcamento({
+                "id": orcamento.id,
+                "cliente_id": orcamento.cliente_id,
+                "tipo_de_cerca": orcamento.tipo_de_cerca,
+                "metragem": orcamento.metragem,
+                "portao": orcamento.portao,
+                "valor_estimado": orcamento.valor_estimado,
+                "tamanho_painel": orcamento.tamanho_painel,
+                "cor_material": orcamento.cor_material
+            })
 
             print(f"Orçamento cadastrado com sucesso: {orcamento}")
 
