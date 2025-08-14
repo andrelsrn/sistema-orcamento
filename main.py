@@ -6,11 +6,16 @@ sistema = SistemaOrcamento()
 
 
 def exibir_menu():
-    print("""    [1] - Cadastrar cliente,
-    [2] - Cadastrar orcamento,
-    [3] - Listar orcamentos,
-    [4] - Consultar orcamento por nome,
+    print('-='* 20)
+    print('CADASTRO DE ORCAMENTOS'.center(40))
+    print('-='* 20)
+
+    print("""    [1] - Cadastrar cliente
+    [2] - Cadastrar orcamento
+    [3] - Listar orcamentos
+    [4] - Consultar orcamento por nome
     [5] - Sair""")
+    print('-='* 20)
 
 
 while True:
@@ -51,12 +56,14 @@ while True:
             print(f"Erro ao cadastrar cliente: {e}")
 
     elif opcao == "2":
-        buscar_cliente = input("Digite o nome do cliente para cadastrar o orçamento: ").lower()
+        buscar_cliente = input(
+            "Digite o nome do cliente para cadastrar o orçamento: ").lower()
 
         while True:
             clientes = sistema.buscar_cliente_por_nome(buscar_cliente)
             if not clientes:
-                print("Cliente não encontrado. Para cadastrar orçamento, o cliente deve existir. Tente novamente.")
+                print(
+                    "Cliente não encontrado. Para cadastrar orçamento, o cliente deve existir. Tente novamente.")
                 buscar_cliente = input("Digite o nome do cliente: ").lower()
             else:
                 print("Clientes encontrados:")
@@ -71,13 +78,14 @@ while True:
                 cliente_id = int(input("Digite o ID do cliente: "))
 
             materiais = {
-                "Madeira": ["6x6", "6x8"],
-                "Alumínio": ["4x6", "5x6"],
-                "PVC": ["6x6", "6x8"]
+                "madeira": ["6x6", "6x8"],
+                "aluminio": ["4x6", "5x6"],
+                "pvc": ["6x6", "6x8"]
             }
 
             while True:
-                tipo_de_cerca = input("Qual material (Madeira, Alumínio, PVC): ").title()
+                tipo_de_cerca = input(
+                    "Qual material (Madeira, Alumínio, PVC): ").strip().lower()
                 if tipo_de_cerca not in materiais:
                     print("Material inválido. Tente novamente.")
                     continue
@@ -97,17 +105,22 @@ while True:
                 break
 
             cor_material = None
-            if tipo_de_cerca == "PVC":
+            if tipo_de_cerca == "pvc":
                 while True:
-                    cor_material = input("Cor do material (Branco, Preto, Cinza): ").title()
+                    cor_material = input(
+                        "Cor do material (Branco, Bege, Marrom, Cinza): ").strip().lower()
+                    if cor_material not in ["branco", "bege", "marrom", "cinza"]:
+                        print("Cor inválida. Tente novamente.")
+                        continue
                     if not cor_material:
                         print("Cor do material não pode ser vazia.")
                         continue
                     break
             else:
-                cor_material = ""  # Para materiais que não sejam PVC, pode deixar vazio
+                cor_material = "N/A"  # Para materiais que não sejam PVC, pode deixar vazio
 
-            metragem = float(input("Digite a metragem da cerca (LINEAR FEET): "))
+            metragem = float(
+                input("Digite a metragem da cerca (LINEAR FEET): "))
             portao = input("Digite se há portão (sim/não): ").lower() == 'sim'
             valor_estimado = float(input("Digite o valor estimado: "))
 
@@ -119,7 +132,6 @@ while True:
 
         except ValueError as e:
             print(f"Erro ao cadastrar orçamento: {e}")
-
 
     elif opcao == "3":
         orcamentos = sistema.listar_orcamentos()
