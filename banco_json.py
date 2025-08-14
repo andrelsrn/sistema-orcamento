@@ -1,4 +1,3 @@
-import json  # Importa módulo para trabalhar com arquivos JSON
 import json  # Importa o módulo para trabalhar com arquivos JSON
 
 
@@ -30,6 +29,27 @@ def salvar_cliente(novo_cliente):
     with open('clientes.json', 'w') as arquivo:
         # json.dump escreve a lista em formato JSON, indent=4 deixa legível
         json.dump(clientes, arquivo, indent=4)
+
+
+def salvar_todos_clientes(lista_de_clientes):
+    """
+    Recebe uma lista completa de objetos Cliente, converte para dicionários
+    e sobrescreve o arquivo 'clientes.json' com os dados atualizados.
+    """
+    # Converte a lista de objetos Cliente para uma lista de dicionários
+    # de forma explícita para evitar salvar dados indesejados (como a lista de orçamentos).
+    clientes_dict = [
+        {
+            "id": c.id,
+            "nome": c.nome,
+            "telefone": c.telefone,
+            "endereco": c.endereco,
+            "email": c.email
+        }
+        for c in lista_de_clientes]
+    with open('clientes.json', 'w') as arquivo:
+        # Salva a lista inteira, sobrescrevendo o conteúdo anterior
+        json.dump(clientes_dict, arquivo, indent=4)
 
 
 def carregar_orcamentos():

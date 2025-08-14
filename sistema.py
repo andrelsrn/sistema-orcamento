@@ -1,5 +1,6 @@
 from cliente import Cliente
 from orcamento import Orcamento
+import re  # Importa o módulo de expressões regulares para validação
 
 
 class SistemaOrcamento:
@@ -21,12 +22,13 @@ class SistemaOrcamento:
         if not nome or not telefone or not endereco or not email:
             raise ValueError("Todos os campos são obrigatórios.")
 
-        cliente = Cliente(nome, self.proximo_id_cliente,telefone, endereco, email)
+        cliente = Cliente(nome, self.proximo_id_cliente,
+                          telefone, endereco, email)
         self.clientes.append(cliente)
         self.proximo_id_cliente += 1
         return cliente
 
-    def cadastrar_orcamento(self, cliente_id, tipo_de_cerca, metragem, portao, valor_estimado, material, t_painel, cor):
+    def cadastrar_orcamento(self, cliente_id, metragem, portao, valor_estimado, material, t_painel, cor_material):
         """
         Busca o cliente pelo ID fornecido.
         Se existir, cria um orçamento associado ao cliente e adiciona à lista.
@@ -36,8 +38,12 @@ class SistemaOrcamento:
         if not cliente:
             raise ValueError("Cliente não encontrado.")
 
-        orcamento = Orcamento(cliente, tipo_de_cerca,metragem, portao, valor_estimado, material, t_painel,cor)
+        orcamento = Orcamento(cliente, metragem, portao,
+                              valor_estimado, material, t_painel, cor_material)
         self.orcamentos.append(orcamento)
+
+        # Associa o orçamento ao cliente (responsabilidade do sistema)
+        cliente.orcamentos.append(orcamento)
         return orcamento
 
     def listar_orcamentos(self):
@@ -79,3 +85,31 @@ class SistemaOrcamento:
         cliente = next((c for c in self.clientes if c.id == cliente_id), None)
         if not cliente:
             raise ValueError("Cliente não encontrado para atualização.")
+
+        # Atualiza cada campo apenas se um novo valor for fornecido
+        if nome is not None:
+            nome = nome.strip()
+            if not nome or not nome.replace(" ", "").isalpha():
+                raise ValueError("Nome inválido. Deve conter apenas letras.")
+            cliente.nome = nome
+
+        if telefone is not None:
+            telefone = telefone.strip()
+            if not re.match(r"^\d{11}$", telefone):
+                raise ValueError(
+                    "Telefone deve conter exatamente 11 números (com DDD).")
+            cliente.telefone = telefone
+
+        if endereco is not None:
+            endereco = endereco.strip()
+            if not endereco:
+                raise ValueError("Endereço não pode ser vazio.")
+            cliente.endereco = endereco
+
+        if email is not None:
+            email = email.strip()
+            if not re.fullmatch(r"^[\w\.-]+@[\w\.-]+\.\w+$", email):
+                raise ValueError("Formato de Email inválido.")
+            cliente.email = email
+
+        return cliente

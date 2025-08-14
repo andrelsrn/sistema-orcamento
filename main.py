@@ -7,26 +7,25 @@ from banco_json import carregar_orcamentos, salvar_orcamento
 
 sistema = SistemaOrcamento()
 
+# --- INICIALIZAÇÃO DO SISTEMA ---
 # Carregar clientes salvos no JSON
 clientes_salvos = carregar_cliente()
+max_id = 0
 for c in clientes_salvos:
     # Cadastrar cliente no sistema a partir do JSON
-    sistema.cadastrar_cliente(
+    cliente_cadastrado = sistema.cadastrar_cliente(
         c['nome'], c['telefone'], c['endereco'], c['email'])
+    if cliente_cadastrado.id > max_id:
+        max_id = cliente_cadastrado.id
+# Garante que o próximo ID seja maior que o maior ID carregado
+sistema.proximo_id_cliente = max_id + 1
 
 # Carregar orçamentos salvos no JSON
 orcamentos_salvos = carregar_orcamentos()
 for o in orcamentos_salvos:
     sistema.cadastrar_orcamento(
-        o['cliente_id'],
-        o['tipo_de_cerca'],
-        o['metragem'],
-        o['portao'],
-        o['valor_estimado'],
-        o['tipo_de_cerca'],       # ou outro parâmetro necessário
-        o['tamanho_painel'],
-        o['cor_material']
-    )
+        o['cliente_id'], o['metragem'], o['portao'], o['valor_estimado'],
+        o['material'], o['t_painel'], o['cor_material'])
 
 
 def exibir_menu():
@@ -47,32 +46,13 @@ while True:
     opcao = input("Escolha uma opção: ")
 
     if opcao == "1":
-        while True:
-            nome = input("Digite o nome do cliente: ").strip()
-            if not nome.replace(" ", "").isalpha():
-                print("Nome inválido. Deve conter apenas letras. Tente novamente.")
-            else:
-                break
-        while True:
-            telefone = input("Digite o telefone do cliente: ")
-            if not telefone.isdigit() or len(telefone) < 11:
-                print(
-                    "Telefone inválido. Deve conter apenas números e ter 11 dígitos. Tente novamente.")
-            else:
-                break
-        while True:
+        # Coleta de dados sem validação duplicada
+        nome = input("Digite o nome do cliente: ").strip()
+        telefone = input(
+            "Digite o telefone do cliente (11 dígitos, com DDD): ").strip()
+        endereco = input("Digite o endereco do cliente: ").strip()
+        email = input("Digite o email do cliente: ").strip()
 
-            endereco = input("Digite o endereco do cliente: ")
-            if not endereco.strip():
-                print("Endereço não pode ser vazio. Tente novamente.")
-            else:
-                break
-        while True:
-            email = input("Digite o email do cliente: ").strip()
-            if "@" not in email or "." not in email:
-                print("Formato de Email inválido. Tente novamente.")
-            else:
-                break
         try:
             cliente = sistema.cadastrar_cliente(
                 nome, telefone, endereco, email)
@@ -119,14 +99,14 @@ while True:
             }
 
             while True:
-                tipo_de_cerca = input(
+                material = input(
                     "Qual material (Madeira, Alumínio, PVC): ").strip().lower()
-                if tipo_de_cerca not in materiais:
+                if material not in materiais:
                     print("Material inválido. Tente novamente.")
                     continue
                 break
 
-            opcoes_painel = materiais[tipo_de_cerca]
+            opcoes_painel = materiais[material]
             print("Escolha o tamanho do painel:")
             for i, tamanho in enumerate(opcoes_painel, 1):
                 print(f"[{i}] {tamanho}")
@@ -140,7 +120,7 @@ while True:
                 break
 
             cor_material = None
-            if tipo_de_cerca == "pvc":
+            if material == "pvc":
                 while True:
                     cor_material = input(
                         "Cor do material (Branco, Bege, Marrom, Cinza): ").strip().lower()
@@ -151,8 +131,6 @@ while True:
                         print("Cor do material não pode ser vazia.")
                         continue
                     break
-            else:
-                cor_material = "N/A"
 
             metragem = float(
                 input("Digite a metragem da cerca (LINEAR FEET): "))
@@ -160,20 +138,15 @@ while True:
             valor_estimado = float(input("Digite o valor estimado: "))
 
             # Cadastra o orçamento no sistema
-            orcamento = sistema.cadastrar_orcamento(
-                cliente_id, tipo_de_cerca, metragem, portao, valor_estimado, tipo_de_cerca, t_painel, cor_material
-            )
+            orcamento = sistema.cadastrar_orcamento(cliente_id, metragem, portao, valor_estimado,
+                                                    material, t_painel, cor_material)
 
             # Persistência no JSON
             salvar_orcamento({
-                "id": orcamento.id,
-                "cliente_id": orcamento.cliente_id,
-                "tipo_de_cerca": orcamento.tipo_de_cerca,
-                "metragem": orcamento.metragem,
-                "portao": orcamento.portao,
-                "valor_estimado": orcamento.valor_estimado,
-                "tamanho_painel": orcamento.tamanho_painel,
-                "cor_material": orcamento.cor_material
+                "id": orcamento.id, "cliente_id": orcamento.cliente.id,
+                "metragem": orcamento.metragem, "portao": orcamento.portao,
+                "valor_estimado": orcamento.valor_estimado, "material": orcamento.material,
+                "t_painel": orcamento.t_painel, "cor_material": orcamento.cor_material
             })
 
             print(f"Orçamento cadastrado com sucesso: {orcamento}")
