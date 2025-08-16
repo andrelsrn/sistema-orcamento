@@ -1,32 +1,18 @@
 [
     {
-        "id": "72f95496",
-        "material": "pvc",
+        "id": "8da442db",
         "cliente_id": 1,
-        "metragem": 154.0,
-        "portao": true,
-        "valor_estimado": 2548.0,
-        "t_painel": "6x6",
-        "cor_material": "branco"
-    },
-    {
-        "id": "482cc4a8",
+        "metragem": 233.0,
+        "portao": "sim",
+        "valor_estimado": 2449.0,
         "material": "pvc",
-        "cliente_id": 1,
-        "metragem": 154.0,
-        "portao": true,
-        "valor_estimado": 4515.0,
         "t_painel": "6x6",
-        "cor_material": "bege"
-    },
-    {
-        "id": "19147883",
-        "material": "pvc",
-        "cliente_id": 1,
-        "metragem": 254.0,
-        "portao": true,
-        "valor_estimado": 2548.0,
-        "t_painel": "6x6",
-        "cor_material": "cinza"
+        "cor_material": "branco",
+        "tamanho_portao": null,
+        "qnt_portao": 2,
+        "portoes": {
+            "portao_1": "single",
+            "portao_2": "double"
+        }
     }
 ]

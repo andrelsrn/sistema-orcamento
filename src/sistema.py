@@ -28,7 +28,7 @@ class SistemaOrcamento:
         self.proximo_id_cliente += 1
         return cliente
 
-    def cadastrar_orcamento(self, cliente_id, metragem, portao, valor_estimado, material, t_painel, cor_material):
+    def cadastrar_orcamento(self, cliente_id, metragem, portao, valor_estimado, material, t_painel, cor_material, tamanho_portao, qnt_portao, portoes):
         """
         Busca o cliente pelo ID fornecido.
         Se existir, cria um orçamento associado ao cliente e adiciona à lista.
@@ -39,7 +39,7 @@ class SistemaOrcamento:
             raise ValueError("Cliente não encontrado.")
 
         orcamento = Orcamento(cliente, metragem, portao,
-                              valor_estimado, material, t_painel, cor_material)
+                              valor_estimado, material, t_painel, cor_material, tamanho_portao, qnt_portao, portoes)
         self.orcamentos.append(orcamento)
 
         # Associa o orçamento ao cliente (responsabilidade do sistema)

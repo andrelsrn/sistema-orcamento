@@ -5,5 +5,12 @@
         "telefone": "24998190370",
         "endereco": "Rua Padre Jose Sundrup  495 Resende RJ 27520261",
         "email": "andrel.srn@hotmail.com"
+    },
+    {
+        "id": 2,
+        "nome": "Joaquim Nunes",
+        "telefone": "24995654512",
+        "endereco": "Avenida General Afonseca  555 Barra Mansa RJ",
+        "email": "joaquim@gmail.com"
     }
 ]

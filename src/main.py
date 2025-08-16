@@ -25,7 +25,7 @@ orcamentos_salvos = carregar_orcamentos()
 for o in orcamentos_salvos:
     sistema.cadastrar_orcamento(
         o['cliente_id'], o['metragem'], o['portao'], o['valor_estimado'],
-        o['material'], o['t_painel'], o['cor_material'])
+        o['material'], o['t_painel'], o['cor_material'], o['tamanho_portao'], o['qnt_portao'], o['portoes'])
 
 
 def exibir_menu():
@@ -134,19 +134,44 @@ while True:
 
             metragem = float(
                 input("Digite a metragem da cerca (LINEAR FEET): "))
-            portao = input("Digite se há portão (sim/não): ").lower() == 'sim'
-            valor_estimado = float(input("Digite o valor estimado: "))
+
+            tamanho_portao = qnt_portao = None
+            portoes = {}
+            portao = input("Digite se há portão (Sim/Não): ").strip().lower()
+
+            if portao == 'sim':
+                while True:
+                    qnt_portao = input(
+                        'Quantidade de portão: [Ex: 1 ou 2] ').strip().lower()
+                    if qnt_portao.isdigit():
+                        qnt_portao = int(qnt_portao)
+
+                        for i in range(qnt_portao):
+                            while True:
+                                tamanho_portao_input = input(
+                                    f'Qual tamanho do portão {i+1} (Single / Double): ').strip().lower()
+                                if tamanho_portao_input not in ['single', 'double']:
+                                    print("Tamanho inválido. Tente novamente.")
+                                    continue  # repete o loop interno do portão atual
+                                portoes[f'portao_{i+1}'] = tamanho_portao_input
+                                break  # sai do loop interno e vai para o próximo portão
+                        break  # sai do loop externo após todos os portões
+                    else:
+                        print("Quantidade inválida. Digite um número.")
+
+            valor_estimado = float(input("Digite o valor estimado R$: "))
 
             # Cadastra o orçamento no sistema
             orcamento = sistema.cadastrar_orcamento(cliente_id, metragem, portao, valor_estimado,
-                                                    material, t_painel, cor_material)
+                                                    material, t_painel, cor_material, tamanho_portao, qnt_portao, portoes)
 
             # Persistência no JSON
             salvar_orcamento({
                 "id": orcamento.id, "cliente_id": orcamento.cliente.id,
                 "metragem": orcamento.metragem, "portao": orcamento.portao,
                 "valor_estimado": orcamento.valor_estimado, "material": orcamento.material,
-                "t_painel": orcamento.t_painel, "cor_material": orcamento.cor_material
+                "t_painel": orcamento.t_painel, "cor_material": orcamento.cor_material,
+                "tamanho_portao": orcamento.tamanho_portao, "qnt_portao": qnt_portao, "portoes": portoes
             })
 
             print(f"Orçamento cadastrado com sucesso: {orcamento}")
