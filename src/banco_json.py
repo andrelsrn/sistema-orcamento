@@ -1,4 +1,20 @@
 import json  # Importa o módulo para trabalhar com arquivos JSON
+from pathlib import Path
+
+# --- CONFIGURAÇÃO DE CAMINHOS ---
+# Path(__file__) é o caminho para este arquivo (banco_json.py)
+# .resolve().parent vai para o diretório que contém o arquivo (src/)
+# .parent novamente vai para o diretório pai (a raiz do projeto)
+# A partir da raiz, construímos o caminho para o diretório 'data'
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / 'data'
+
+# Garante que o diretório 'data' exista. Se não, ele será criado.
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# Caminhos completos para os arquivos JSON
+CLIENTES_FILE = DATA_DIR / 'clientes.json'
+ORCAMENTOS_FILE = DATA_DIR / 'orcamentos.json'
 
 
 def carregar_cliente():
@@ -7,12 +23,11 @@ def carregar_cliente():
     Se o arquivo não existir, retorna uma lista vazia.
     """
     try:
-        # Abre o arquivo no modo leitura ('r') e carrega o conteúdo JSON
-        with open('clientes.json', 'r') as arquivo:
-            # Converte o JSON em lista de dicionários
+        # Abre o arquivo no modo leitura ('r') com codificação UTF-8 e carrega o conteúdo JSON
+        with open(CLIENTES_FILE, 'r', encoding='utf-8') as arquivo:
             clientes = json.load(arquivo)
-    except FileNotFoundError:
-        # Se o arquivo não existir, inicializa uma lista vazia
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Se o arquivo não existir ou estiver vazio/corrompido, inicializa uma lista vazia
         clientes = []
     return clientes  # Retorna a lista de clientes
 
@@ -26,9 +41,9 @@ def salvar_cliente(novo_cliente):
     clientes.append(novo_cliente)  # Adiciona o novo cliente à lista
 
     # Abre o arquivo no modo escrita ('w') e salva a lista atualizada
-    with open('clientes.json', 'w') as arquivo:
+    with open(CLIENTES_FILE, 'w', encoding='utf-8') as arquivo:
         # json.dump escreve a lista em formato JSON, indent=4 deixa legível
-        json.dump(clientes, arquivo, indent=4)
+        json.dump(clientes, arquivo, indent=4, ensure_ascii=False)
 
 
 def salvar_todos_clientes(lista_de_clientes):
@@ -47,9 +62,9 @@ def salvar_todos_clientes(lista_de_clientes):
             "email": c.email
         }
         for c in lista_de_clientes]
-    with open('clientes.json', 'w') as arquivo:
+    with open(CLIENTES_FILE, 'w', encoding='utf-8') as arquivo:
         # Salva a lista inteira, sobrescrevendo o conteúdo anterior
-        json.dump(clientes_dict, arquivo, indent=4)
+        json.dump(clientes_dict, arquivo, indent=4, ensure_ascii=False)
 
 
 def carregar_orcamentos():
@@ -58,10 +73,10 @@ def carregar_orcamentos():
     Se o arquivo não existir, retorna uma lista vazia.
     """
     try:
-        with open('orcamentos.json', 'r') as arquivo:
+        with open(ORCAMENTOS_FILE, 'r', encoding='utf-8') as arquivo:
             orcamentos = json.load(arquivo)  # Converte JSON em lista Python
-    except FileNotFoundError:
-        orcamentos = []  # Se não existir, retorna lista vazia
+    except (FileNotFoundError, json.JSONDecodeError):
+        orcamentos = []  # Se não existir ou estiver vazio/corrompido, retorna lista vazia
     return orcamentos
 
 
@@ -73,6 +88,6 @@ def salvar_orcamento(novo_orcamento):
     orcamentos = carregar_orcamentos()  # Carrega lista existente
     orcamentos.append(novo_orcamento)   # Adiciona o novo orçamento
 
-    with open('orcamentos.json', 'w') as arquivo:
+    with open(ORCAMENTOS_FILE, 'w', encoding='utf-8') as arquivo:
         # Salva lista atualizada no JSON
-        json.dump(orcamentos, arquivo, indent=4)
+        json.dump(orcamentos, arquivo, indent=4, ensure_ascii=False)
