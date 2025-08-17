@@ -159,9 +159,8 @@ while True:
                     else:
                         print("Quantidade inválida. Digite um número.")
 
-            valor_estimado = float(input("Digite o valor estimado R$: "))
-
             # Cadastra o orçamento no sistema
+            valor_estimado = 0
             orcamento = sistema.cadastrar_orcamento(cliente_id, metragem, portao, valor_estimado,
                                                     material, t_painel, cor_material, tamanho_portao, qnt_portao, portoes)
 
