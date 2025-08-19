@@ -1,18 +1,23 @@
-import re
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
+from base import Base  # <--- importa a Base
+import re  # Importa o módulo de expressões regulares para validação
 
+class Cliente(Base):
+    __tablename__ = "clientes"
+    id = Column(Integer, primary_key=True, index=True)
+    nome = Column(String, nullable=False)
+    telefone = Column(String, nullable=False)
+    endereco = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    orcamentos = relationship("Orcamento", back_populates="cliente")
 
-class Cliente:
-    """
-    Classe que representa um cliente do sistema de orçamentos.
-    """
-
-    def __init__(self, nome, id, telefone, endereco, email):
+    def __init__(self, nome, telefone, endereco, email):
         """
         Inicializa um novo cliente.
 
         Parâmetros:
             nome (str): Nome do cliente.
-            id (int): ID único do cliente.
             telefone (str): Telefone do cliente (com DDD, 11 dígitos).
             endereco (str): Endereço do cliente.
             email (str): Email do cliente.
@@ -39,14 +44,10 @@ class Cliente:
         if not re.fullmatch(r"^[\w\.-]+@[\w\.-]+\.\w+$", email):
             raise ValueError("Formato de Email inválido.")
 
-        self.id = id
         self.nome = nome
         self.telefone = telefone
         self.endereco = endereco
         self.email = email
-
-        # Lista para armazenar os orçamentos associados a este cliente
-        self.orcamentos = []
 
     def __str__(self):
         return (
