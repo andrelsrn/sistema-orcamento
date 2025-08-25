@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from base import Base  # <--- importa a Base
+from ..base import Base  # <--- importa a Base
 import re  # Importa o módulo de expressões regulares para validação
 
 class Cliente(Base):

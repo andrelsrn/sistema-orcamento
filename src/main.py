@@ -1,6 +1,7 @@
-from models.cliente import Cliente
-from models.orcamento import Orcamento
-from sistema import SistemaOrcamento
+import re
+from .models import Cliente, Orcamento
+from .sistema import SistemaOrcamento
+
 
 sistema = SistemaOrcamento()
 
@@ -16,6 +17,108 @@ def exibir_menu():
     [4] - Consultar orcamento por nome
     [5] - Sair""")
     print('-=' * 20)
+
+
+def orquestrar_cadastro_orcamento(sistema):
+    """Guia o usuário através do processo de criação de um novo orçamento."""
+    
+    # 1. Encontrar o cliente
+    while True:
+        buscar_cliente = input("Digite o nome do cliente para o orçamento: ").lower().strip()
+        clientes_encontrados = sistema.buscar_cliente_por_nome(buscar_cliente)
+        if clientes_encontrados:
+            print("Clientes encontrados:")
+            for c in clientes_encontrados:
+                print(c)
+            break
+        print("Nenhum cliente encontrado. Tente novamente.")
+
+    # 2. Selecionar o ID do cliente
+    cliente_ids_validos = {str(c.id) for c in clientes_encontrados}
+    while True:
+        cliente_id_str = input("Digite o ID do cliente selecionado: ").strip()
+        if cliente_id_str in cliente_ids_validos:
+            cliente_id = int(cliente_id_str)
+            break
+        print("ID inválido. Por favor, escolha um ID da lista acima.")
+
+    # 3. Detalhes do material
+    materiais = {
+        "madeira": ["6x6", "6x8"],
+        "aluminio": ["4x6", "5x6"],
+        "pvc": ["6x6", "6x8"]
+    }
+    while True:
+        material = input("Qual material (Madeira, Alumínio, PVC): ").strip().lower()
+        if material in materiais:
+            break
+        print("Material inválido. Tente novamente.")
+
+    # 4. Tamanho do painel
+    opcoes_painel = materiais[material]
+    print("Escolha o tamanho do painel:")
+    for i, tamanho in enumerate(opcoes_painel, 1):
+        print(f"[{i}] {tamanho}")
+    while True:
+        escolha = input(f"Opção (1-{len(opcoes_painel)}): ").strip()
+        if escolha.isdigit() and 1 <= int(escolha) <= len(opcoes_painel):
+            t_painel = opcoes_painel[int(escolha) - 1]
+            break
+        print("Opção inválida.")
+
+    # 5. Cor (apenas para PVC)
+    cor_material = None
+    if material == "pvc":
+        cores_validas = ["branco", "bege", "marrom", "cinza"]
+        while True:
+            cor_material = input(f"Cor do material ({', '.join(cores_validas)}): ").strip().lower()
+            if cor_material in cores_validas:
+                break
+            print("Cor inválida.")
+
+    # 6. Metragem
+    while True:
+        try:
+            metragem_str = input("Digite a metragem da cerca (em metros): ").strip()
+            metragem = float(metragem_str)
+            if metragem > 0:
+                break
+            print("A metragem deve ser um número positivo.")
+        except ValueError:
+            print("Entrada inválida. Por favor, digite um número.")
+
+    # 7. Portões
+    portoes = {}
+    qnt_portao = 0
+    if input("Haverá portão (Sim/Não)? ").strip().lower() == 'sim':
+        while True:
+            qnt_str = input('Quantidade de portões [Ex: 1 ou 2]: ').strip()
+            if qnt_str.isdigit() and int(qnt_str) > 0:
+                qnt_portao = int(qnt_str)
+                break
+            print("Quantidade inválida. Digite um número maior que zero.")
+        
+        for i in range(qnt_portao):
+            while True:
+                tamanho_portao = input(f'Qual o tamanho do portão {i+1} (Single / Double): ').strip().lower()
+                if tamanho_portao in ['single', 'double']:
+                    portoes[f'portao_{i+1}'] = tamanho_portao
+                    break
+                print("Tamanho inválido. Escolha 'Single' ou 'Double'.")
+
+    # 8. Cadastrar o orçamento através do sistema
+    # A função retorna o resultado de sistema.cadastrar_orcamento
+    return sistema.cadastrar_orcamento(
+        cliente_id=cliente_id,
+        metragem=metragem,
+        portao='sim' if qnt_portao > 0 else 'não',
+        material=material,
+        t_painel=t_painel,
+        cor_material=cor_material,
+        tamanho_portao=None, # Este argumento parece não ser mais necessário se temos o dict 'portoes'
+        qnt_portao=qnt_portao,
+        portoes=portoes
+    )
 
 
 while True:
@@ -40,99 +143,16 @@ while True:
             print(f"Erro ao cadastrar cliente: {e}")
 
     elif opcao == "2":
-        buscar_cliente = input("Digite o nome do cliente para cadastrar o orçamento: ").lower()
-
-        # Busca o cliente pelo nome
-        while True:
-            clientes_encontrados = sistema.buscar_cliente_por_nome(buscar_cliente)
-            if not clientes_encontrados:
-                print("Cliente não encontrado. Tente novamente.")
-                buscar_cliente = input("Digite o nome do cliente: ").lower()
-            else:
-                print("Clientes encontrados:")
-                for c in clientes_encontrados:
-                    print(c)
-                break  # sai do loop ao encontrar clientes
-
-        # Seleciona o ID do cliente
-        cliente_ids = [c.id for c in clientes_encontrados]
-        cliente_id = int(input("Digite o ID do cliente: "))
-        while cliente_id not in cliente_ids:
-            print("Id inválido. Tente novamente.")
-            cliente_id = int(input("Digite o ID do cliente: "))
-
         try:
-            materiais = {
-                "madeira": ["6x6", "6x8"],
-                "aluminio": ["4x6", "5x6"],
-                "pvc": ["6x6", "6x8"]
-            }
-
-            # Escolha do material
-            while True:
-                material = input("Qual material (Madeira, Alumínio, PVC): ").strip().lower()
-                if material not in materiais:
-                    print("Material inválido. Tente novamente.")
-                    continue
-                break
-
-            # Tamanho do painel
-            opcoes_painel = materiais[material]
-            print("Escolha o tamanho do painel:")
-            for i, tamanho in enumerate(opcoes_painel, 1):
-                print(f"[{i}] {tamanho}")
-
-            while True:
-                escolha = input("Opção: ")
-                if escolha in ["1", "2"]:
-                    t_painel = opcoes_painel[int(escolha) - 1]
-                    break
-                print("Opção inválida. Tente novamente.")
-
-            # Cor do PVC
-            cor_material = None
-            if material == "pvc":
-                while True:
-                    cor_material = input("Cor do material (Branco, Bege, Marrom, Cinza): ").strip().lower()
-                    if cor_material in ["branco", "bege", "marrom", "cinza"]:
-                        break
-                    print("Cor inválida. Tente novamente.")
-
-            metragem = float(input("Digite a metragem da cerca (LINEAR FEET): "))
-
-            # Portões
-            tamanho_portao = qnt_portao = None
-            portoes = {}
-            portao = input("Digite se há portão (Sim/Não): ").strip().lower()
-
-            if portao == 'sim':
-                while True:
-                    qnt_portao = input('Quantidade de portão: [Ex: 1 ou 2] ').strip()
-                    if qnt_portao.isdigit():
-                        qnt_portao = int(qnt_portao)
-                        for i in range(qnt_portao):
-                            while True:
-                                tamanho_portao_input = input(
-                                    f'Qual tamanho do portão {i+1} (Single / Double): ').strip().lower()
-                                if tamanho_portao_input in ['single', 'double']:
-                                    portoes[f'portao_{i+1}'] = tamanho_portao_input
-                                    break
-                                print("Tamanho inválido. Tente novamente.")
-                        break
-                    print("Quantidade inválida. Digite um número.")
-
-            # Cadastra o orçamento
-            orcamento = sistema.cadastrar_orcamento(
-                cliente_id, metragem, portao,
-                material, t_painel, cor_material, tamanho_portao, qnt_portao, portoes
-            )
-
-            print(f"Orçamento cadastrado com sucesso: {orcamento}")
-
+            orcamento = orquestrar_cadastro_orcamento(sistema)
+            print(f"\nOrçamento cadastrado com sucesso!\n{orcamento}\n")
         except ValueError as e:
-            print(f"Erro ao cadastrar orçamento: {e}")
+            # Erros de validação de dados ou de combinações de materiais
+            print(f"\nErro ao cadastrar orçamento: {e}\n")
+        except Exception as e:
+            # Captura outros erros inesperados para não quebrar o programa
+            print(f"\nOcorreu um erro inesperado: {e}\n")
 
-  
     elif opcao == "3":
         orcamentos = sistema.listar_orcamentos()
         if not orcamentos:

@@ -1,14 +1,18 @@
-from models.cliente import Cliente
-from models.orcamento import Orcamento
-import re  # Importa o módulo de expressões regulares para validação
-from services.cliente_service import (
+from .db import SessionLocal
+from .models import Cliente, Orcamento
+import re
+from .services.cliente_service import (
     cadastrar_cliente,
     listar_clientes,
     buscar_cliente_por_nome,
     atualizar_cliente,
     deletar_cliente
 )
-from services.orcamento_service import cadastrar_orcamento, consultar_orcamento_por_nome, listar_orcamentos
+from .services.orcamento_service import (
+    cadastrar_orcamento,
+    consultar_orcamento_por_nome,
+    listar_orcamentos
+)
 
 
 class SistemaOrcamento:
@@ -20,31 +24,38 @@ class SistemaOrcamento:
         """
 
     def cadastrar_cliente(self, nome, telefone, endereco, email):
-
-        if not nome or not telefone or not endereco or not email:
-            raise ValueError("Todos os campos são obrigatórios.")
-        # Chama o service que salva no banco e retorna o cliente
-        cliente = cadastrar_cliente(nome, telefone, endereco, email)
-        return (cliente)
+        with SessionLocal() as session:
+            if not nome or not telefone or not endereco or not email:
+                raise ValueError("Todos os campos são obrigatórios.")
+            
+            cliente = cadastrar_cliente(nome, telefone, endereco, email, db=session)
+            return cliente
 
     def cadastrar_orcamento(self, cliente_id, metragem, portao, material, t_painel, cor_material, tamanho_portao, qnt_portao, portoes):
-        return cadastrar_orcamento(cliente_id, metragem, portao,
-                                   material, t_painel, cor_material, tamanho_portao, qnt_portao, portoes)
+        with SessionLocal() as session:
+            return cadastrar_orcamento(cliente_id, metragem, portao,
+                                       material, t_painel, cor_material, tamanho_portao, qnt_portao, portoes, db=session)
 
     def listar_orcamentos(self):
-        return listar_orcamentos()
+        with SessionLocal() as session:
+            return listar_orcamentos(db=session)
 
     def consultar_orcamento_por_nome(self, nome_cliente):
-        return consultar_orcamento_por_nome(nome_cliente)
+        with SessionLocal() as session:
+            return consultar_orcamento_por_nome(nome_cliente, db=session)
 
     def listar_clientes(self):
-        return listar_clientes()
+        with SessionLocal() as session:
+            return listar_clientes(db=session)
 
     def buscar_cliente_por_nome(self, nome):
-        return buscar_cliente_por_nome(nome)
+        with SessionLocal() as session:
+            return buscar_cliente_por_nome(nome, db=session)
 
     def atualizar_cliente(self, cliente_id, nome=None, telefone=None, endereco=None, email=None):
-        return atualizar_cliente(cliente_id, nome, telefone, endereco, email)
+        with SessionLocal() as session:
+            return atualizar_cliente(cliente_id, nome, telefone, endereco, email, db=session)
 
     def deletar_cliente(self, cliente_id):
-        return deletar_cliente(cliente_id)
+        with SessionLocal() as session:
+            return deletar_cliente(cliente_id, db=session)

@@ -5,8 +5,7 @@ from db import engine
 from base import Base
 
 # Importe aqui todos os seus modelos para que eles sejam registrados no metadata do Base
-from models.cliente import Cliente
-from models.orcamento import Orcamento
+from models import Cliente, Orcamento
 
 print("Iniciando a criação do banco de dados e tabelas...")
 

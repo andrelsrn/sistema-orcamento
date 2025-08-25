@@ -1,53 +1,38 @@
-from models.cliente import Cliente
-from models.orcamento import Orcamento
-from db import SessionLocal
+from ..models import Cliente
+# A importação do SessionLocal não é mais necessária aqui.
 
-
-def cadastrar_cliente(nome, telefone, endereco, email):
-    session = SessionLocal()
-    if not nome or not telefone or not endereco or not email:
-        raise ValueError("Todos os campos são obrigatórios.")
+def cadastrar_cliente(nome, telefone, endereco, email, db):
+    """Cadastra um novo cliente usando a sessão de banco de dados fornecida."""
     try:
+        if not nome or not telefone or not endereco or not email:
+            raise ValueError("Todos os campos são obrigatórios.")
+        
         cliente = Cliente(nome, telefone, endereco, email)
-        session.add(cliente)
-        session.commit()
-        session.refresh(cliente)
+        db.add(cliente)
+        db.commit()
+        db.refresh(cliente)
         return cliente
     except Exception as e:
-        session.rollback()
+        db.rollback()
         raise e
-    finally:
-        session.close()
-        
 
+def listar_clientes(db):
+    """Retorna uma lista de todos os clientes."""
+    return db.query(Cliente).all()
 
-def listar_clientes():
-    session = SessionLocal()
+# CORREÇÃO: Adicionado o argumento 'nome' que estava faltando.
+def buscar_cliente_por_nome(nome, db):
+    """Busca clientes cujo nome contenha a string fornecida."""
+    return db.query(Cliente).filter(Cliente.nome.ilike(f"%{nome}%")).all()
+
+# CORREÇÃO: Corrigida a indentação e trocado 'session' por 'db'.
+def atualizar_cliente(cliente_id, db, nome=None, telefone=None, endereco=None, email=None):
+    """Atualiza os dados de um cliente existente."""
     try:
-        clientes = session.query(Cliente).all()
-        return clientes
-    finally:
-        session.close()
-
-
-def buscar_cliente_por_nome(nome):
-    session = SessionLocal()
-    try:
-        clientes = session.query(Cliente).filter(
-            Cliente.nome.ilike(f"%{nome}%")).all()
-        return clientes
-    finally:
-        session.close()
-
-
-def atualizar_cliente(cliente_id, nome=None, telefone=None, endereco=None, email=None):
-    session = SessionLocal()
-    # Atualiza cada campo apenas se um novo valor for fornecido
-    try:
-        cliente = session.query(Cliente).filter(
-            Cliente.id == cliente_id).first()
+        cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
         if not cliente:
             raise ValueError("Cliente não encontrado para atualização.")
+        
         if nome is not None:
             cliente.nome = nome
         if telefone is not None:
@@ -57,32 +42,24 @@ def atualizar_cliente(cliente_id, nome=None, telefone=None, endereco=None, email
         if email is not None:
             cliente.email = email
 
-        session.commit()
-        session.refresh(cliente)
+        db.commit()
+        db.refresh(cliente)
         return cliente
-
     except Exception as e:
-        session.rollback()
+        db.rollback()
         raise e
-    finally:
-        session.close()
 
-
-def deletar_cliente(cliente_id):
-    session = SessionLocal()
-
+# CORREÇÃO: Trocado 'session' por 'db'.
+def deletar_cliente(cliente_id, db):
+    """Deleta um cliente do banco de dados."""
     try:
-        cliente = session.query(Cliente).filter(
-            Cliente.id == cliente_id).first()
+        cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
         if not cliente:
             raise ValueError("Cliente não encontrado para exclusão.")
 
-        session.delete(cliente)
-        session.commit()
+        db.delete(cliente)
+        db.commit()
         return True
-
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
+    except Exception as e:
+        db.rollback()
+        raise e

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from base import Base
+from ..base import Base
 import json
 
 class Orcamento(Base):

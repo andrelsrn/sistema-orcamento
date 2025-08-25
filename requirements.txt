@@ -27,7 +27,7 @@ psutil==7.0.0
 pure_eval==0.2.3
 pydantic==2.11.7
 pydantic_core==2.33.2
-pygame==2.6.1
+
 Pygments==2.19.2
 python-dateutil==2.9.0.post0
 pywin32==311
@@ -43,3 +43,4 @@ typing-inspection==0.4.1
 typing_extensions==4.14.1
 uvicorn==0.35.0
 wcwidth==0.2.13
+pytest
