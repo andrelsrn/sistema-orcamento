@@ -29,8 +29,8 @@ class Cliente(Base):
         endereco = endereco.strip()
         email = email.strip()
 
-        if not nome or not nome.replace(" ", "").isalpha():
-            raise ValueError("Nome inválido. Deve conter apenas letras.")
+        if not nome.strip():
+            raise ValueError("Nome não pode ser vazio ou conter apenas espaços.")
 
         # Validação do telefone: exatamente 11 dígitos numéricos
         if not re.match(r"^\d{11}$", telefone):

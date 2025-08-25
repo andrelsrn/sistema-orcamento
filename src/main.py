@@ -1,9 +1,20 @@
 import re
 from .models import Cliente, Orcamento
-from .sistema import SistemaOrcamento
+from .db import SessionLocal
 
+from .services.cliente_service import (
+    cadastrar_cliente as service_cadastrar_cliente,
+    listar_clientes as service_listar_clientes,
+    buscar_cliente_por_nome as service_buscar_cliente_por_nome,
+    atualizar_cliente as service_atualizar_cliente,
+    deletar_cliente as service_deletar_cliente
+)
+from .services.orcamento_service import (
+    cadastrar_orcamento as service_cadastrar_orcamento,
+    listar_orcamentos as service_listar_orcamentos,
+    consultar_orcamento_por_nome as service_consultar_orcamento_por_nome
+)
 
-sistema = SistemaOrcamento()
 
 
 def exibir_menu():
@@ -19,15 +30,16 @@ def exibir_menu():
     print('-=' * 20)
 
 
-def orquestrar_cadastro_orcamento(sistema):
+def orquestrar_cadastro_orcamento(): # Removed 'sistema' parameter
     """Guia o usuário através do processo de criação de um novo orçamento."""
     
     # 1. Encontrar o cliente
     while True:
         buscar_cliente = input("Digite o nome do cliente para o orçamento: ").lower().strip()
-        clientes_encontrados = sistema.buscar_cliente_por_nome(buscar_cliente)
+        with SessionLocal() as session: # Added session management
+            clientes_encontrados = service_buscar_cliente_por_nome(buscar_cliente, db=session) # Updated call
         if clientes_encontrados:
-            print("Clientes encontrados:")
+            print("Clientes encontrados:\n") # Added newline for better formatting
             for c in clientes_encontrados:
                 print(c)
             break
@@ -107,18 +119,20 @@ def orquestrar_cadastro_orcamento(sistema):
                 print("Tamanho inválido. Escolha 'Single' ou 'Double'.")
 
     # 8. Cadastrar o orçamento através do sistema
-    # A função retorna o resultado de sistema.cadastrar_orcamento
-    return sistema.cadastrar_orcamento(
-        cliente_id=cliente_id,
-        metragem=metragem,
-        portao='sim' if qnt_portao > 0 else 'não',
-        material=material,
-        t_painel=t_painel,
-        cor_material=cor_material,
-        tamanho_portao=None, # Este argumento parece não ser mais necessário se temos o dict 'portoes'
-        qnt_portao=qnt_portao,
-        portoes=portoes
-    )
+    # A função retorna o resultado de service_cadastrar_orcamento
+    with SessionLocal() as session: # Added session management
+        return service_cadastrar_orcamento( # Updated call
+            cliente_id=cliente_id,
+            metragem=metragem,
+            portao='sim' if qnt_portao > 0 else 'não',
+            material=material,
+            t_painel=t_painel,
+            cor_material=cor_material,
+            tamanho_portao=None,
+            qnt_portao=qnt_portao,
+            portoes=portoes,
+            db=session # Passed db=session
+        )
 
 
 while True:
@@ -134,8 +148,9 @@ while True:
         email = input("Digite o email do cliente: ").strip()
 
         try:
-            cliente = sistema.cadastrar_cliente(
-                nome, telefone, endereco, email)
+            with SessionLocal() as session: # Added session management
+                cliente = service_cadastrar_cliente(
+                    nome, telefone, endereco, email, db=session) # Updated call
 
             print(f"Cliente cadastrado com sucesso: {cliente}")
 
@@ -144,7 +159,7 @@ while True:
 
     elif opcao == "2":
         try:
-            orcamento = orquestrar_cadastro_orcamento(sistema)
+            orcamento = orquestrar_cadastro_orcamento() # Removed 'sistema' parameter
             print(f"\nOrçamento cadastrado com sucesso!\n{orcamento}\n")
         except ValueError as e:
             # Erros de validação de dados ou de combinações de materiais
@@ -154,7 +169,8 @@ while True:
             print(f"\nOcorreu um erro inesperado: {e}\n")
 
     elif opcao == "3":
-        orcamentos = sistema.listar_orcamentos()
+        with SessionLocal() as session: # Added session management
+            orcamentos = service_listar_orcamentos(db=session) # Updated call
         if not orcamentos:
             print("Nenhum orçamento cadastrado.")
         else:
@@ -166,7 +182,8 @@ while True:
         nome_cliente = input(
             "Digite o nome do cliente para consultar o orçamento: ")
         try:
-            orcamentos = sistema.consultar_orcamento_por_nome(nome_cliente)
+            with SessionLocal() as session: # Added session management
+                orcamentos = service_consultar_orcamento_por_nome(nome_cliente, db=session) # Updated call
             print(f"Orçamentos encontrados para {nome_cliente}:")
             for orcamento in orcamentos:
                 print(orcamento)
