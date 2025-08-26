@@ -1,42 +1,77 @@
-# 🛠️ Sistema de Orçamento para Cercas
+# 📊 Sistema de Geração de Orçamentos
 
-Este é um projeto real criado para resolver uma necessidade que enfrentei na prática: facilitar o atendimento ao cliente com orçamentos rápidos e agendamento de visitas.
+![status](https://img.shields.io/badge/status-Em%20Desenvolvimento-yellow)
+![python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
+![tests](https://img.shields.io/badge/Tests-Passing-brightgreen?logo=pytest)
+![license](https://img.shields.io/badge/Licen%C3%A7a-MIT-green)
 
----
+> **Nota:** Este projeto está em fase de desenvolvimento. O objetivo é criar uma aplicação de desktop completa para a gestão de orçamentos, com foco em código de qualidade, testável e de fácil manutenção.
 
-## 📌 Descrição
+## 📖 Descrição do Projeto
 
-Aplicação desenvolvida em Python para gerar orçamentos personalizados de cercas. Permite o cadastro de clientes, cálculo de estimativas e está sendo evoluído para uma API completa com agendamento e envio de resposta automática ao cliente.
-
-**Estrutura do projeto:**
-- `src/` → Código-fonte (scripts Python)
-- `data/` → Arquivos de dados (`clientes.json` e `orcamentos.json`)
-- `tests/` → Testes automatizados
-- `requirements.txt` → Dependências do projeto
-
----
+O **Sistema de Geração de Orçamentos** será uma aplicação de desktop desenvolvida em Python para auxiliar profissionais autônomos e pequenas empresas a otimizar o processo de criação e gerenciamento de propostas comerciais. A ferramenta permitirá cadastrar clientes, definir um catálogo de serviços e gerar orçamentos de forma rápida e organizada.
 
 ## 💡 Motivação
 
-O projeto nasceu de uma necessidade real que enfrentei trabalhando com vendas de cercas. Muitos clientes buscavam uma estimativa rápida, e o processo manual acabava sendo lento e repetitivo.
+A inspiração para este projeto veio de uma dificuldade real que vivenciei. Durante o período em que geri minha própria empresa nos Estados Unidos, percebi que a maioria das ferramentas para criação de orçamentos era ou complexa demais para as minhas necessidades, ou baseada em assinaturas mensais que não se justificavam para um pequeno negócio.
 
-Essa solução busca automatizar esse processo, agilizando o atendimento e aumentando a conversão de vendas.
+Senti falta de uma solução de desktop simples, rápida, offline e sem custos recorrentes.
 
----
+Este sistema é a minha resposta a esse problema: uma ferramenta prática, construída para resolver uma dor que eu, como empreendedor, senti na pele. É um projeto que une minha experiência passada em negócios com minha nova paixão por desenvolver soluções com software.
 
-## 🚧 Status do projeto
+## ✨ Funcionalidades Planejadas
 
-✔️ Funcionalidades básicas prontas  
-🚧 Em desenvolvimento contínuo  
-📌 Futuras melhorias:
-- Transformar em API com FastAPI
-- Integração com site
-- Banco de dados para indicadores e métricas
+-   [ ] **Gerenciamento de Clientes:** CRUD completo para a base de clientes.
+-   [ ] **Catálogo de Serviços:** CRUD completo para produtos e serviços.
+-   [ ] **Criação e Gestão de Orçamentos:** Geração de propostas associando clientes e serviços.
+-   [ ] **Interface Gráfica Intuitiva:** Interface de usuário (GUI) a ser desenvolvida com CustomTkinter.
+-   [ ] **Histórico e Busca:** Visualização e busca de orçamentos já criados.
 
----
+## 🛠️ Tecnologias Utilizadas
 
-## ▶️ Como executar
+-   **Linguagem Principal:** Python 3
+-   **Banco de Dados:** SQLite 3
+-   **Testes:** Pytest
+-   **Interface Gráfica (Planejada):** CustomTkinter
 
-1. Clone o repositório:
-```bash
-git clone https://github.com/andrelsrn/sistema-orcamento.git
+## ✅ Testes
+
+A qualidade do código é uma prioridade neste projeto. A suíte de testes automatizados garante a estabilidade e o correto funcionamento da lógica de negócios.
+
+Para executar os testes, utilize o seguinte comando na raiz do projeto:
+
+python -m pytest
+
+## 🚀 Como Rodar o Projeto
+
+1.  **Clone o repositório:**
+
+    git clone https://github.com/andrelsrn/sistema-orcamento.git
+
+2.  **Navegue até a pasta do projeto:**
+
+    cd sistema-orcamento
+
+3.  **Crie e ative um ambiente virtual:**
+
+    # Crie o ambiente
+    python -m venv .venv
+    # Ative o ambiente (Windows)
+    .venv\Scripts\activate
+    # Ative o ambiente (Linux/Mac)
+    # source .venv/bin/activate
+
+4.  **Instale as dependências:**
+
+    pip install -r requirements.txt
+
+5.  **Execute a aplicação (quando a UI for implementada):**
+
+    python src/main.py
+
+## 👤 Autor
+
+**André Nunes**
+
+-   GitHub: [@andrelsrn](https://github.com/andrelsrn)
+-   LinkedIn: [@andre-nunes-03866b55](https://www.linkedin.com/in/andre-nunes-03866b55/)
