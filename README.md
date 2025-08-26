@@ -45,29 +45,30 @@ python -m pytest
 ## 🚀 Como Rodar o Projeto
 
 1.  **Clone o repositório:**
-
-    git clone https://github.com/andrelsrn/sistema-orcamento.git
-
+    ```bash
+    git clone [https://github.com/andrelsrn/sistema-orcamento.git](https://github.com/andrelsrn/sistema-orcamento.git)
+    ```
 2.  **Navegue até a pasta do projeto:**
-
+    ```bash
     cd sistema-orcamento
-
+    ```
 3.  **Crie e ative um ambiente virtual:**
-
+    ```bash
     # Crie o ambiente
     python -m venv .venv
     # Ative o ambiente (Windows)
     .venv\Scripts\activate
     # Ative o ambiente (Linux/Mac)
     # source .venv/bin/activate
-
+    ```
 4.  **Instale as dependências:**
-
+    ```bash
     pip install -r requirements.txt
-
+    ```
 5.  **Execute a aplicação (quando a UI for implementada):**
-
+    ```bash
     python src/main.py
+    ```
 
 ## 👤 Autor
 
