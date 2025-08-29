@@ -76,3 +76,8 @@ def consultar_orcamento_por_nome(nome_cliente: str, db: Session):
         raise ValueError(
             "Nenhum orçamento encontrado para o cliente informado.")
     return orcamentos
+
+
+def consultar_orcamento_por_id(orcamento_id: int, db: Session):
+    '''Consulta um orçamento pelo ID, incluindo os dados do cliente.'''
+    return db.query(Orcamento).options(joinedload(Orcamento.cliente)).filter(Orcamento.id == orcamento_id).first()
