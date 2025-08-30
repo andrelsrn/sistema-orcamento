@@ -3,13 +3,14 @@
 ![status](https://img.shields.io/badge/status-Em%20Desenvolvimento-yellow)
 ![python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
 ![tests](https://img.shields.io/badge/Tests-Passing-brightgreen?logo=pytest)
+![coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)
 ![license](https://img.shields.io/badge/Licen%C3%A7a-MIT-green)
 
-> **Nota:** Este projeto está em fase de desenvolvimento. O objetivo é criar uma aplicação de desktop completa para a gestão de orçamentos, com foco em código de qualidade, testável e de fácil manutenção.
+> **Nota:** Este projeto é um sistema de linha de comando (CLI) funcional, com planos para desenvolvimento de uma interface gráfica de desktop. O foco é em código de qualidade, testável e de fácil manutenção.
 
 ## 📖 Descrição do Projeto
 
-O **Sistema de Geração de Orçamentos** será uma aplicação de desktop desenvolvida em Python para auxiliar profissionais autônomos e pequenas empresas a otimizar o processo de criação e gerenciamento de propostas comerciais. A ferramenta permitirá cadastrar clientes, definir um catálogo de serviços e gerar orçamentos de forma rápida e organizada.
+O **Sistema de Geração de Orçamentos** é uma ferramenta de linha de comando (CLI) desenvolvida em Python para auxiliar profissionais autônomos e pequenas empresas a otimizar o processo de criação e gerenciamento de propostas comerciais. A ferramenta permite cadastrar clientes, gerenciar orçamentos e gerar propostas em PDF de forma rápida e organizada.
 
 ## 💡 Motivação
 
@@ -19,20 +20,20 @@ Senti falta de uma solução de desktop simples, rápida, offline e sem custos r
 
 Este sistema é a minha resposta a esse problema: uma ferramenta prática, construída para resolver uma dor que eu, como empreendedor, senti na pele. É um projeto que une minha experiência passada em negócios com minha nova paixão por desenvolver soluções com software.
 
-## ✨ Funcionalidades Planejadas
+## ✨ Funcionalidades
 
--   [ ] **Gerenciamento de Clientes:** CRUD completo para a base de clientes.
--   [ ] **Catálogo de Serviços:** CRUD completo para produtos e serviços.
--   [ ] **Criação e Gestão de Orçamentos:** Geração de propostas associando clientes e serviços.
--   [ ] **Interface Gráfica Intuitiva:** Interface de usuário (GUI) a ser desenvolvida com CustomTkinter.
--   [ ] **Histórico e Busca:** Visualização e busca de orçamentos já criados.
+-   [x] **Gerenciamento de Clientes:** CRUD completo para a base de clientes.
+-   [x] **Criação e Gestão de Orçamentos:** Geração de propostas associando clientes e serviços.
+-   [x] **Geração de PDF:** Exporta orçamentos para o formato PDF.
+-   [x] **Histórico e Busca:** Visualização e busca de orçamentos já criados.
+-   [ ] **Interface Gráfica Intuitiva:** Interface de usuário (GUI) planejada com CustomTkinter.
 
 ## 🛠️ Tecnologias Utilizadas
 
 -   **Linguagem Principal:** Python 3
--   **Banco de Dados:** SQLite 3
--   **Testes:** Pytest
--   **Interface Gráfica (Planejada):** CustomTkinter
+-   **Banco de Dados:** SQLite 3 com **SQLAlchemy** (ORM)
+-   **Geração de PDF:** **ReportLab**
+-   **Testes:** **Pytest**
 
 ## ✅ Testes
 
@@ -40,7 +41,10 @@ A qualidade do código é uma prioridade neste projeto. A suíte de testes autom
 
 Para executar os testes, utilize o seguinte comando na raiz do projeto:
 
+```bash
+pip install -r requirements-dev.txt
 python -m pytest
+```
 
 ## 🚀 Como Rodar o Projeto
 
@@ -48,6 +52,8 @@ python -m pytest
     ```bash
     git clone [https://github.com/andrelsrn/sistema-orcamento.git](https://github.com/andrelsrn/sistema-orcamento.git)
     ```
+    *Observação: Lembre-se de atualizar para a URL correta do seu repositório.*
+
 2.  **Navegue até a pasta do projeto:**
     ```bash
     cd sistema-orcamento
@@ -65,7 +71,7 @@ python -m pytest
     ```bash
     pip install -r requirements.txt
     ```
-5.  **Execute a aplicação (quando a UI for implementada):**
+5.  **Execute a aplicação:**
     ```bash
     python src/main.py
     ```

@@ -1,7 +1,24 @@
 import json
 from sqlalchemy.orm import joinedload, Session
 from ..models import Cliente, Orcamento
-from ..valores import TABELA_PRECOS, VALOR_PORTAO
+
+# --- New code to load config from JSON ---
+def load_config():
+    """Carrega a configuração de preços do arquivo config.json."""
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    
+    precos_str_keys = config['TABELA_PRECOS']
+    
+    # Converte as chaves do JSON (strings) de volta para tuplas que o código espera
+    tabela_precos_tuple_keys = {tuple(k.split(';')): v for k, v in precos_str_keys.items()}
+    
+    valor_portao = config['VALOR_PORTAO']
+    return tabela_precos_tuple_keys, valor_portao
+
+# Carrega os preços na inicialização do módulo
+TABELA_PRECOS, VALOR_PORTAO = load_config()
+# --- End of new code ---
 
 
 def calcular_valor_estimado(metragem, material, t_painel, cor_material, portao, qnt_portao):
