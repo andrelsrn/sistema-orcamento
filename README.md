@@ -14,7 +14,7 @@ O **Sistema de Geração de Orçamentos** é uma ferramenta de linha de comando 
 
 ## 💡 Motivação
 
-A inspiração para este projeto veio de uma dificuldade real que vivenciei. Durante o período em que geri minha própria empresa nos Estados Unidos, percebi que a maioria das ferramentas para criação de orçamentos era ou complexa demais para as minhas necessidades, ou baseada em assinaturas mensais que não se justificavam para um pequeno negócio.
+A inspiração para este projeto veio de uma dificuldade real que vivenciei. Durante o período em que geri minha própria empresa nos Estados Unidos, percebi que a maioria das ferramentas para criação de orçamentos eram ou complexas demais para as minhas necessidades, ou baseadas em assinaturas mensais que não se justificavam para um pequeno negócio.
 
 Senti falta de uma solução de desktop simples, rápida, offline e sem custos recorrentes.
 
