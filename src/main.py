@@ -1,4 +1,5 @@
 import re
+import os
 from .models import Cliente, Orcamento
 from .db import SessionLocal
 from .services.orcamento_service import consultar_orcamento_por_id
@@ -17,6 +18,8 @@ from .services.orcamento_service import (
     consultar_orcamento_por_nome as service_consultar_orcamento_por_nome
 )
 
+from .services.email_service import enviar_email_pdf
+
 
 def exibir_menu():
     print('-=' * 20)
@@ -27,12 +30,12 @@ def exibir_menu():
     [2] - Cadastrar orcamento
     [3] - Listar orcamentos
     [4] - Consultar orcamento por nome
-    [5] - Gerar PDF do orcamento
+    [5] - Gerar PDF e Enviar por email
     [6] - Sair     """)
     print('-=' * 20)
 
 
-def orquestrar_cadastro_orcamento():  # Removed 'sistema' parameter
+def orquestrar_cadastro_orcamento():
     """Guia o usuário através do processo de criação de um novo orçamento."""
 
     # 1. Encontrar o cliente
@@ -129,8 +132,8 @@ def orquestrar_cadastro_orcamento():  # Removed 'sistema' parameter
 
     # 8. Cadastrar o orçamento através do sistema
     # A função retorna o resultado de service_cadastrar_orcamento
-    with SessionLocal() as session:  # Added session management
-        return service_cadastrar_orcamento(  # Updated call
+    with SessionLocal() as session:
+        return service_cadastrar_orcamento(
             cliente_id=cliente_id,
             metragem=metragem,
             portao='sim' if qnt_portao > 0 else 'não',
@@ -212,8 +215,38 @@ while True:
 
             if orcamento_obj:
                 nome_arquivo = f"orcamento_{orcamento_obj.id}_{orcamento_obj.cliente.nome}.pdf"
+                caminho_arquivo = os.path.abspath(nome_arquivo)
                 gerar_orcamento(orcamento_obj, nome_arquivo)
-                print(f"\\nPDF gerado com sucesso: {nome_arquivo}\\n")
+                print(f"\nPDF gerado com sucesso: {caminho_arquivo}\n")
+
+                if orcamento_obj.cliente.email:
+                    try:
+                        assunto = f"Fence estimate for {orcamento_obj.cliente.nome}."
+                        corpo_email = f'''
+                    <p>Hello {orcamento_obj.cliente.nome},</p> 
+
+                    <p>I hope this message finds you well.</p>
+                    <p>Please find attached the proposal for the fence installation at your property.</p>
+                    <p>If you have any questions or need further information, feel free to reach out.</
+
+                    <p>Best regards,</p>
+                    <p>André Nunes</p>
+                    <p>Nunes Fence LLC</p>
+                    <p>Phone: (351) 201-4314</p>
+                '''
+
+                        enviar_email_pdf(
+                            destinatario=orcamento_obj.cliente.email,
+                            assunto=assunto,
+                            corpo=corpo_email,
+                            anexo=caminho_arquivo
+                        )
+                        print(
+                            f"Email enviado para {orcamento_obj.cliente.email} com o anexo {nome_arquivo}.\\n")
+                    except Exception as email_error:
+                        print(
+                            f"\\nATENÇÃO: O PDF foi gerado, mas ocorreu um erro ao enviar o e-mail: {email_error}\\n")
+
             else:
                 print("\\nOrçamento não encontrado.\\n")
 
