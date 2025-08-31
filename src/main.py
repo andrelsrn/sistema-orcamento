@@ -4,6 +4,7 @@ from .models import Cliente, Orcamento
 from .db import SessionLocal
 from .services.orcamento_service import consultar_orcamento_por_id
 from .gerador_pdf import gerar_orcamento
+from .config import REMETENTE_EMAIL
 
 from .services.cliente_service import (
     cadastrar_cliente as service_cadastrar_cliente,
@@ -239,21 +240,22 @@ while True:
                             destinatario=orcamento_obj.cliente.email,
                             assunto=assunto,
                             corpo=corpo_email,
-                            anexo=caminho_arquivo
+                            anexo=caminho_arquivo,
+                            email_remetente=REMETENTE_EMAIL
                         )
                         print(
                             f"Email enviado para {orcamento_obj.cliente.email} com o anexo {nome_arquivo}.\\n")
                     except Exception as email_error:
                         print(
-                            f"\\nATENÇÃO: O PDF foi gerado, mas ocorreu um erro ao enviar o e-mail: {email_error}\\n")
+                            f"ATENÇÃO: O PDF foi gerado, mas ocorreu um erro ao enviar o e-mail: {email_error}")
 
             else:
-                print("\\nOrçamento não encontrado.\\n")
+                print("Orçamento não encontrado.")
 
         except ValueError:
-            print("\\nID inválido. Por favor, digite um número.\\n")
+            print("ID inválido. Por favor, digite um número.")
         except Exception as e:
-            print(f"\\nOcorreu um erro ao gerar o PDF: {e}\\n")
+            print(f"Ocorreu um erro ao gerar o PDF: {e}")
 
     elif opcao == "6":
         print("Saindo do sistema.")

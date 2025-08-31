@@ -3,4 +3,4 @@
 __pycache__/
 *.log
 *.db
-.coverage
+.coverage"*.pdf" 
