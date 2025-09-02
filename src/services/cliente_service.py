@@ -1,4 +1,5 @@
 from ..models import Cliente
+from sqlalchemy import func
 # A importação do SessionLocal não é mais necessária aqui.
 
 def cadastrar_cliente(nome, telefone, endereco, email, db):
@@ -22,8 +23,13 @@ def listar_clientes(db):
 
 # CORREÇÃO: Adicionado o argumento 'nome' que estava faltando.
 def buscar_cliente_por_nome(nome, db):
-    """Busca clientes cujo nome contenha a string fornecida."""
-    return db.query(Cliente).filter(Cliente.nome.ilike(f"%{nome}%")).all()
+    """Busca clientes cujo nome contenha a string fornecida (case-insensitive)."""
+    print(f"DEBUG: ClienteService - Nome recebido para busca: '{nome}'")
+    print(f"DEBUG: ClienteService - Nome convertido para busca (lower): '{nome.lower()}'")
+    
+    result = db.query(Cliente).filter(func.lower(Cliente.nome).like(f"%{nome.lower()}%")).all()
+    print(f"DEBUG: ClienteService - Resultado da busca (objetos): {result}")
+    return result
 
 # CORREÇÃO: Corrigida a indentação e trocado 'session' por 'db'.
 def atualizar_cliente(cliente_id, db, nome=None, telefone=None, endereco=None, email=None):

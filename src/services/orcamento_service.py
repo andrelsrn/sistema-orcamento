@@ -4,18 +4,27 @@ from ..models import Cliente, Orcamento
 from ..config import TABELA_PRECOS, VALOR_PORTAO
 
 
+# Em: services/orcamento_service.py
+
 def calcular_valor_estimado(metragem, material, t_painel, cor_material, portao, qnt_portao):
     """Calcula o valor estimado do orçamento com base nos materiais e metragem."""
-    chave_preco = (material, t_painel, cor_material) if material == 'pvc' else (
-        material, t_painel)
+    
+    # Converte o material para minúsculo ANTES da comparação
+    if material.lower() == 'pvc':
+        # Para 'PVC', ele vai criar a chave correta de 3 itens
+        chave_preco = (material.lower(), t_painel, cor_material.lower())
+    else:
+        chave_preco = (material.lower(), t_painel)
 
     preco_metro = TABELA_PRECOS.get(chave_preco)
+    
     if preco_metro is None:
         raise ValueError(
-            f"Combinação de material '{material}', painel '{t_painel}' e cor '{cor_material}' não encontrada.")
+            f"Combinação de material '{chave_preco[0]}', painel '{chave_preco[1]}' e cor '{chave_preco[2] if len(chave_preco) > 2 else '-'}' não foi encontrada na tabela de preços.")
 
     valor_total = preco_metro * metragem
     if portao and qnt_portao and qnt_portao > 0:
+        # Assumindo que VALOR_PORTAO é uma constante definida em algum lugar
         valor_total += VALOR_PORTAO * qnt_portao
 
     return valor_total

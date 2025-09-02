@@ -1,6 +1,18 @@
+# Arquivos de Ambiente Virtual e Segredos
+.venv/
+.env
+
+# Arquivos compilados e cache do Python
+__pycache__/
 *.pyc
 *.pyo
-__pycache__/
-*.log
+
+# Banco de dados e logs
 *.db
-.coverage"*.pdf" 
+*.log
+
+# Arquivos gerados pela aplicação (PDFs de orçamento)
+*.pdf
+
+# Arquivos de relatório de testes
+.coverage
