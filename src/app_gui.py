@@ -1,11 +1,14 @@
 import customtkinter as ctk
 from tkinter import ttk
 from .db import SessionLocal
-from .services.cliente_service import buscar_cliente_por_nome, listar_clientes
+from .services.cliente_service import buscar_cliente_por_nome, listar_clientes, cadastrar_cliente
 from .gerador_pdf import gerar_orcamento
 from .services.orcamento_service import cadastrar_orcamento, listar_orcamentos
 from .models import Cliente, Orcamento
-import re ,os, threading, queue
+import re
+import os
+import threading
+import queue
 from sqlalchemy.orm import joinedload
 import traceback
 from .services.email_service import enviar_email_smtp
@@ -39,6 +42,7 @@ class App(ctk.CTk):
         self.tab_view.add("Cadastrar Orçamento")
         self.tab_view.add("Consultar Orçamentos")
         self.tab_view.add("Clientes")
+        self.tab_view.add("Cadastrar Cliente")
 
         # --- Aba: Cadastrar Orçamento ---
         self.tab_1_frame = self.tab_view.tab("Cadastrar Orçamento")
@@ -137,29 +141,30 @@ class App(ctk.CTk):
                    "Material", "Tamanho Painel", "Cor Material", "Valor Estimado")
         self.tree = ttk.Treeview(
             self.scrollable_frame, columns=columns, show="headings", height=10)
-        
+
         for col in columns:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=100, anchor="center")
 
         self.tree.pack(expand=True, fill="both")
 
-        #Adiciona o "ouvinte" para seleção na lista
+        # Adiciona o "ouvinte" para seleção na lista
         self.tree.bind("<<TreeviewSelect>>", self.on_orcamento_select)
 
         # Frame para o botão
-        self.tab_2_button_frame = ctk.CTkFrame(self.tab_2_frame, fg_color="transparent")
+        self.tab_2_button_frame = ctk.CTkFrame(
+            self.tab_2_frame, fg_color="transparent")
         self.tab_2_button_frame.pack(pady=10, fill="x", padx=10)
 
         # Botão para atualizar a lista
-        self.btn_atualizar = ctk.CTkButton(self.tab_2_button_frame, text="Atualizar Orçamentos", command=self.carregar_orcamentos)
+        self.btn_atualizar = ctk.CTkButton(
+            self.tab_2_button_frame, text="Atualizar Orçamentos", command=self.carregar_orcamentos)
         self.btn_atualizar.pack(side="left", expand=True, padx=(0, 5))
 
         # Botão para enviar e-mail, começando desabilitado
         self.btn_enviar_email = ctk.CTkButton(self.tab_2_button_frame, text="Enviar Orçamento por E-mail",
                                               command=self.enviar_orcamento_email, state="disabled")
         self.btn_enviar_email.pack(side="left", expand=True, padx=(5, 0))
-
 
         # Scrollbar vertical
         scrollbar = ttk.Scrollbar(
@@ -187,6 +192,49 @@ class App(ctk.CTk):
         btn_atualizar_clientes = ctk.CTkButton(
             self.tab_3_frame, text="Atualizar Clientes", command=self.carregar_clientes)
         btn_atualizar_clientes.pack(pady=5)
+
+        # --- Aba: Cadastrar Cliente ---
+        self.tab_4_frame = self.tab_view.tab("Cadastrar Cliente")
+        self.tab_4_frame.grid_columnconfigure(1, weight=1)
+
+        # Campos para cadastrar cliente
+        lbl_nome = ctk.CTkLabel(self.tab_4_frame, text="Nome:")
+        lbl_nome.grid(row=0, column=0, padx=20, pady=(20, 8), sticky="w")
+        self.entry_nome_cliente = ctk.CTkEntry(
+            self.tab_4_frame, placeholder_text="Nome completo")
+        self.entry_nome_cliente.grid(
+            row=0, column=1, padx=(0, 10), pady=(20, 8), sticky="ew")
+
+        lbl_email = ctk.CTkLabel(self.tab_4_frame, text="Email:")
+        lbl_email.grid(row=1, column=0, padx=20, pady=8, sticky="w")
+        self.entry_email_cliente = ctk.CTkEntry(
+            self.tab_4_frame, placeholder_text="exemplo@dominio.com")
+        self.entry_email_cliente.grid(
+            row=1, column=1, padx=(0, 10), pady=8, sticky="ew")
+
+        lbl_telefone = ctk.CTkLabel(self.tab_4_frame, text="Telefone:")
+        lbl_telefone.grid(row=2, column=0, padx=20, pady=8, sticky="w")
+        self.entry_telefone_cliente = ctk.CTkEntry(
+            self.tab_4_frame, placeholder_text="Apenas números")
+        self.entry_telefone_cliente.grid(
+            row=2, column=1, padx=(0, 10), pady=8, sticky="ew")
+
+        lbl_endereco = ctk.CTkLabel(self.tab_4_frame, text="Endereço:")
+        lbl_endereco.grid(row=3, column=0, padx=20, pady=8, sticky="w")
+        self.entry_endereco_cliente = ctk.CTkEntry(
+            self.tab_4_frame, placeholder_text="Rua, Nº, Bairro")
+        self.entry_endereco_cliente.grid(
+            row=3, column=1, padx=(0, 10), pady=8, sticky="ew")
+
+        self.btn_cadastrar_cliente = ctk.CTkButton(
+            self.tab_4_frame, text="Cadastrar Cliente", command=self.submit_cliente)
+        self.btn_cadastrar_cliente.grid(
+            row=4, column=0, columnspan=2, padx=20, pady=15, sticky="ew")
+
+        self.client_create_status_label = ctk.CTkLabel(
+            self.tab_4_frame, text="", text_color="green")
+        self.client_create_status_label.grid(
+            row=5, column=0, columnspan=2, padx=20, pady=(0, 10), sticky="ew")
 
         # --- Inicialização ---
         self.update_panel_options(self.material_combobox.get())
@@ -433,13 +481,12 @@ class App(ctk.CTk):
                 self.client_tree.insert("", "end", values=(
                     c.id, c.nome, c.email, c.telefone))
 
-    def  on_orcamento_select(self, event=None):
+    def on_orcamento_select(self, event=None):
         """Ativa o botão de e-mail se um item estiver selecionado."""
         if self.tree.selection():
             self.btn_enviar_email.configure(state="normal")
         else:
             self.btn_enviar_email.configure(state="disabled")
-
 
     def enviar_orcamento_email(self):
         """
@@ -460,17 +507,17 @@ class App(ctk.CTk):
             target=self.tarefa_de_envio,
             args=(int(orcamento_id), self.resultado_fila)
         )
-        worker_thread.daemon = True  # Permite que o app feche mesmo se a thread estiver rodando.
+        # Permite que o app feche mesmo se a thread estiver rodando.
+        worker_thread.daemon = True
         worker_thread.start()
 
         # Exibe uma mensagem de status inicial para o usuário.
-        self.status_label = ctk.CTkLabel(self.tab_2_frame, text=f"Processando orçamento {orcamento_id}...", text_color="yellow")
+        self.status_label = ctk.CTkLabel(
+            self.tab_2_frame, text=f"Processando orçamento {orcamento_id}...", text_color="yellow")
         self.status_label.pack(pady=5)
-        
+
         # Inicia o método que verifica a fila de resultados periodicamente.
         self.verificar_fila_de_resultados()
-
-
 
     def tarefa_de_envio(self, orcamento_id, fila):
         """
@@ -481,7 +528,8 @@ class App(ctk.CTk):
         caminho_logo = os.path.abspath("fence.logo1.png")
         try:
             with SessionLocal() as session:
-                orcamento = session.query(Orcamento).options(joinedload(Orcamento.cliente)).filter(Orcamento.id == orcamento_id).first()
+                orcamento = session.query(Orcamento).options(joinedload(
+                    Orcamento.cliente)).filter(Orcamento.id == orcamento_id).first()
                 if not orcamento:
                     raise ValueError("Orçamento não encontrado.")
 
@@ -489,7 +537,7 @@ class App(ctk.CTk):
 
                 assunto = f"Fence Estimate Nº {orcamento.id} - Nunes Fence LLC"
                 corpo_html = criar_corpo_html_orcamento(orcamento)
-                
+
                 # MUDANÇA 2: Chamando a função correta (enviar_email_smtp)
                 enviar_email_smtp(
                     destinatario=orcamento.cliente.email,
@@ -498,7 +546,7 @@ class App(ctk.CTk):
                     caminho_anexo=caminho_pdf,
                     caminho_imagem_embutida=caminho_logo
                 )
-            
+
             fila.put("SUCESSO")
 
         except Exception as e:
@@ -507,12 +555,11 @@ class App(ctk.CTk):
             traceback.print_exc()
             print("-----------------------------\n")
             fila.put(e)
-        
+
         finally:
             if os.path.exists(caminho_pdf):
                 os.remove(caminho_pdf)
-            
-           
+
     def verificar_fila_de_resultados(self):
         """
         Verifica a fila de resultados sem bloquear a interface.
@@ -523,8 +570,10 @@ class App(ctk.CTk):
             resultado = self.resultado_fila.get_nowait()
 
             if resultado == "SUCESSO":
-                orcamento_id = self.tree.item(self.tree.selection(), "values")[0]
-                self.status_label.configure(text=f"E-mail para o orçamento {orcamento_id} enviado!", text_color="lightgreen")
+                orcamento_id = self.tree.item(
+                    self.tree.selection(), "values")[0]
+                self.status_label.configure(
+                    text=f"E-mail para o orçamento {orcamento_id} enviado!", text_color="lightgreen")
             else:
                 # Se o resultado for uma exceção, lança o erro.
                 raise resultado
@@ -533,15 +582,49 @@ class App(ctk.CTk):
             # Se a fila estiver vazia, a tarefa ainda está em andamento.
             # Agenda a próxima verificação para daqui a 100ms.
             self.after(100, self.verificar_fila_de_resultados)
-        
+
         except Exception as e:
             # Se um erro foi pego da fila, exibe na tela.
-            self.status_label.configure(text=f"Erro ao enviar: {e}", text_color="red")
+            self.status_label.configure(
+                text=f"Erro ao enviar: {e}", text_color="red")
 
         finally:
             # Se a fila não está vazia, significa que o processo terminou.
             if not self.resultado_fila.empty():
-                 self.after(7000, lambda: self.status_label.destroy())
+                self.after(7000, lambda: self.status_label.destroy())
+
+    def submit_cliente(self):
+        """Handler para cadastrar cliente a partir da GUI (aba Cadastrar Cliente)."""
+        nome = self.entry_nome_cliente.get().strip()
+        email = self.entry_email_cliente.get().strip()
+        telefone = self.entry_telefone_cliente.get().strip()
+        endereco = self.entry_endereco_cliente.get().strip()
+
+        if not nome:
+            self.client_create_status_label.configure(
+                text="Erro: Nome é obrigatório.", text_color="red")
+            return
+
+        try:
+            with SessionLocal() as session:
+                cliente = cadastrar_cliente(
+                    nome=nome, telefone=telefone, endereco=endereco, email=email, db=session)
+            self.client_create_status_label.configure(
+                text=f"Cliente cadastrado (ID: {cliente.id})", text_color="green")
+            # limpa campos
+            self.entry_nome_cliente.delete(0, ctk.END)
+            self.entry_email_cliente.delete(0, ctk.END)
+            self.entry_telefone_cliente.delete(0, ctk.END)
+            self.entry_endereco_cliente.delete(0, ctk.END)
+            # atualiza a lista de clientes na aba Clientes
+            self.carregar_clientes()
+        except ValueError as ve:
+            self.client_create_status_label.configure(
+                text=f"Erro: {ve}", text_color="red")
+        except Exception as e:
+            self.client_create_status_label.configure(
+                text=f"Erro ao cadastrar: {e}", text_color="red")
+
 
 if __name__ == "__main__":
     app = App()
