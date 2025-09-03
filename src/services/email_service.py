@@ -2,6 +2,7 @@ from email.mime.image import MIMEImage  # <-- Importante para a imagem
 import smtplib
 import os
 import logging
+import time
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
@@ -26,6 +27,9 @@ def enviar_email_smtp(destinatario, assunto, corpo_html, caminho_anexo, caminho_
     servidor_smtp = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     porta_smtp = int(os.getenv("SMTP_PORT", "587"))
     timeout = int(os.getenv("SMTP_TIMEOUT", "30"))
+
+    # Pequeno atraso para evitar problemas de timing em GUIs
+    time.sleep(0.5)
 
     if not seu_email or not sua_senha_de_app:
         raise ValueError(
