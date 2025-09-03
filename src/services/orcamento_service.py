@@ -4,14 +4,13 @@ from ..models import Cliente, Orcamento
 from ..config import TABELA_PRECOS, VALOR_PORTAO
 
 
-# Em: services/orcamento_service.py
+
 
 def calcular_valor_estimado(metragem, material, t_painel, cor_material, portao, qnt_portao):
     """Calcula o valor estimado do orçamento com base nos materiais e metragem."""
     
-    # Converte o material para minúsculo ANTES da comparação
+    # O preço do PVC varia por cor, enquanto outros materiais não.
     if material.lower() == 'pvc':
-        # Para 'PVC', ele vai criar a chave correta de 3 itens
         chave_preco = (material.lower(), t_painel, cor_material.lower())
     else:
         chave_preco = (material.lower(), t_painel)
@@ -24,7 +23,6 @@ def calcular_valor_estimado(metragem, material, t_painel, cor_material, portao, 
 
     valor_total = preco_metro * metragem
     if portao and qnt_portao and qnt_portao > 0:
-        # Assumindo que VALOR_PORTAO é uma constante definida em algum lugar
         valor_total += VALOR_PORTAO * qnt_portao
 
     return valor_total
@@ -32,6 +30,26 @@ def calcular_valor_estimado(metragem, material, t_painel, cor_material, portao, 
 
 def cadastrar_orcamento(cliente_id, metragem, portao, material, t_painel, cor_material,
                         tamanho_portao, qnt_portao, portoes, db: Session):
+    """Cadastra um novo orçamento no banco de dados.
+
+    Calcula o valor estimado, associa ao cliente e salva o registro.
+    Os detalhes dos portões são recebidos como um dicionário e salvos como JSON.
+
+    Args:
+        cliente_id (int): ID do cliente ao qual o orçamento pertence.
+        metragem (float): A metragem total da cerca.
+        portao (str): 'sim' ou 'não', indicando a presença de portão.
+        material (str): O material principal da cerca.
+        t_painel (str): O tamanho do painel.
+        cor_material (str | None): A cor, aplicável apenas para PVC.
+        tamanho_portao (str | None): O tamanho do portão.
+        qnt_portao (int): A quantidade de portões.
+        portoes (dict): Um dicionário com detalhes dos portões.
+        db (Session): A sessão do SQLAlchemy para interagir com o banco.
+
+    Returns:
+        Orcamento: O objeto Orcamento completo, com os dados do cliente.
+    """
     try:
         cliente = db.query(Cliente).filter(
             Cliente.id == cliente_id).first()
@@ -70,10 +88,12 @@ def cadastrar_orcamento(cliente_id, metragem, portao, material, t_painel, cor_ma
 
 
 def listar_orcamentos(db: Session):
+    """Lista todos os orçamentos registrados, incluindo os dados dos clientes."""
     return db.query(Orcamento).options(joinedload(Orcamento.cliente)).all()
 
 
 def consultar_orcamento_por_nome(nome_cliente: str, db: Session):
+    """Consulta orçamentos pelo nome do cliente, permitindo buscas parciais."""
     orcamentos = (
         db.query(Orcamento)
         .options(joinedload(Orcamento.cliente))

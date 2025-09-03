@@ -17,10 +17,10 @@ from .gerador_pdf import criar_corpo_html_orcamento
 
 class App(ctk.CTk):
     def __init__(self):
+        """Inicializa a aplicação principal da GUI e configura todos os widgets."""
         super().__init__()
 
         self.title("Sistema de Orçamentos de Cerca")
-        # Aumentei um pouco a altura para caber os novos campos
         self.geometry("800x650")
 
         ctk.set_appearance_mode("System")
@@ -34,7 +34,7 @@ class App(ctk.CTk):
 
         self.gate_widgets = []
         self.found_clients = []
-        self.selected_client_id = None  # Para guardar o ID do cliente selecionado
+        self.selected_client_id = None
 
         self.tab_view = ctk.CTkTabview(self, width=780)
         self.tab_view.pack(padx=10, pady=10, fill="both", expand=True)
@@ -62,7 +62,6 @@ class App(ctk.CTk):
             self.tab_1_frame, text="Buscar", width=80, command=self.buscar_e_selecionar_cliente)
         self.client_search_button.grid(row=0, column=2, padx=10, pady=(20, 10))
 
-        # Combobox para selecionar o cliente encontrado
         self.client_selection_combobox = ctk.CTkComboBox(self.tab_1_frame, values=[
                                                          "Nenhum cliente encontrado"], command=self.on_client_select)
         self.client_selection_combobox.grid(
@@ -70,7 +69,6 @@ class App(ctk.CTk):
         self.client_selection_combobox.set("Nenhum cliente encontrado")
         self.client_selection_combobox.configure(state="disabled")
 
-        # Label de status
         self.client_status_label = ctk.CTkLabel(
             self.tab_1_frame, text="", text_color="green")
         self.client_status_label.grid(
@@ -293,7 +291,7 @@ class App(ctk.CTk):
         if material == "PVC":
             self.color_combobox.configure(state="normal")
             self.color_label.configure(
-                text_color="white")  # Cor padrão do tema
+                text_color="white") # Indica que está habilitado
         else:
             self.color_combobox.configure(state="disabled")
             # Indica que está desabilitado
@@ -331,7 +329,7 @@ class App(ctk.CTk):
 
         if qty > 10:
             qty = 10
-            # CORREÇÃO: Atualiza o campo para refletir o limite
+            # Impõe um limite de 10 na quantidade de portões para evitar excesso de widgets.
             self.gate_qty_entry.delete(0, ctk.END)
             self.gate_qty_entry.insert(0, str(qty))
             self.client_status_label.configure(
@@ -455,12 +453,11 @@ class App(ctk.CTk):
         self.client_selection_combobox.set("Nenhum cliente encontrado")
         self.found_clients = []
         self.selected_client_id = None
-        # Não limpe a mensagem de sucesso, apenas a reconfigure aqui
-        self.after(5000, lambda: self.client_status_label.configure(
-            text=""))  # Limpa a msg após 5 segundos
+        # Agenda a limpeza da mensagem de status para 5 segundos no futuro.
+        self.after(5000, lambda: self.client_status_label.configure(text=""))
 
     def carregar_orcamentos(self):
-        # ... (seu código aqui)
+        """Busca os orçamentos no banco de dados e atualiza a tabela na GUI."""
         with SessionLocal() as session:
             orcamentos = listar_orcamentos(session)
             for i in self.tree.get_children():
@@ -472,7 +469,7 @@ class App(ctk.CTk):
                 ))
 
     def carregar_clientes(self):
-        # ... (seu código aqui)
+        """Busca os clientes no banco de dados e atualiza a tabela na GUI."""
         with SessionLocal() as session:
             clientes = listar_clientes(session)
             for i in self.client_tree.get_children():

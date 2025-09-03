@@ -1,4 +1,4 @@
-from email.mime.image import MIMEImage  # <-- Importante para a imagem
+from email.mime.image import MIMEImage
 import smtplib
 import os
 import logging
@@ -22,6 +22,27 @@ def enviar_email_pdf(destinatario, assunto, corpo, anexo, email_remetente=None):
 
 
 def enviar_email_smtp(destinatario, assunto, corpo_html, caminho_anexo, caminho_imagem_embutida):
+    """Envia um e-mail com um anexo PDF e uma imagem embutida.
+
+    Esta função constrói e envia um e-mail multipart/related usando SMTP,
+    ideal para orçamentos em PDF com um logo no corpo do e-mail.
+
+    As credenciais e configurações do servidor SMTP são carregadas a partir
+    de variáveis de ambiente.
+
+    Args:
+        destinatario (str): O e-mail do destinatário.
+        assunto (str): O assunto do e-mail.
+        corpo_html (str): O conteúdo HTML do corpo do e-mail.
+        caminho_anexo (str): O caminho para o arquivo PDF a ser anexado.
+        caminho_imagem_embutida (str): O caminho para a imagem a ser
+            embutida no corpo do e-mail (referenciada no HTML via CID).
+
+    Raises:
+        ValueError: Se as credenciais de e-mail não forem encontradas ou
+                    se os caminhos para o anexo ou imagem não existirem.
+        Exception: Re-levanta exceções de `smtplib` em caso de falha no envio.
+    """
     seu_email = os.getenv("EMAIL_USER")
     sua_senha_de_app = os.getenv("EMAIL_PASSWORD")
     servidor_smtp = os.getenv("SMTP_SERVER", "smtp.gmail.com")
@@ -43,10 +64,8 @@ def enviar_email_smtp(destinatario, assunto, corpo_html, caminho_anexo, caminho_
     msg['To'] = destinatario
     msg['Subject'] = assunto
 
-    # corpo HTML
     msg.attach(MIMEText(corpo_html or "", 'html'))
 
-    # anexa PDF corretamente como application/pdf
     try:
         with open(caminho_anexo, 'rb') as attachment:
             part = MIMEBase('application', 'pdf')
@@ -58,7 +77,6 @@ def enviar_email_smtp(destinatario, assunto, corpo_html, caminho_anexo, caminho_
     except FileNotFoundError:
         raise ValueError(f"Arquivo de anexo não encontrado: {caminho_anexo}")
 
-    # anexa imagem embutida somente se fornecida e existente
     if caminho_imagem_embutida:
         if not os.path.isfile(caminho_imagem_embutida):
             raise ValueError(

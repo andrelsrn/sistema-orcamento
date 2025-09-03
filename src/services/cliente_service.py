@@ -3,7 +3,21 @@ from sqlalchemy import func
 # A importação do SessionLocal não é mais necessária aqui.
 
 def cadastrar_cliente(nome, telefone, endereco, email, db):
-    """Cadastra um novo cliente usando a sessão de banco de dados fornecida."""
+    """Cadastra um novo cliente no banco de dados.
+
+    Args:
+        nome (str): Nome completo do cliente.
+        telefone (str): Telefone de contato.
+        endereco (str): Endereço do cliente.
+        email (str): E-mail de contato.
+        db (Session): A sessão do SQLAlchemy para interagir com o banco.
+
+    Returns:
+        Cliente: O objeto Cliente recém-criado.
+
+    Raises:
+        ValueError: Se algum dos campos obrigatórios estiver vazio.
+    """
     try:
         if not nome or not telefone or not endereco or not email:
             raise ValueError("Todos os campos são obrigatórios.")
@@ -21,19 +35,29 @@ def listar_clientes(db):
     """Retorna uma lista de todos os clientes."""
     return db.query(Cliente).all()
 
-# CORREÇÃO: Adicionado o argumento 'nome' que estava faltando.
 def buscar_cliente_por_nome(nome, db):
     """Busca clientes cujo nome contenha a string fornecida (case-insensitive)."""
-    print(f"DEBUG: ClienteService - Nome recebido para busca: '{nome}'")
-    print(f"DEBUG: ClienteService - Nome convertido para busca (lower): '{nome.lower()}'")
-    
-    result = db.query(Cliente).filter(func.lower(Cliente.nome).like(f"%{nome.lower()}%")).all()
-    print(f"DEBUG: ClienteService - Resultado da busca (objetos): {result}")
-    return result
+    return db.query(Cliente).filter(func.lower(Cliente.nome).like(f"%{nome.lower()}%")).all()
 
-# CORREÇÃO: Corrigida a indentação e trocado 'session' por 'db'.
 def atualizar_cliente(cliente_id, db, nome=None, telefone=None, endereco=None, email=None):
-    """Atualiza os dados de um cliente existente."""
+    """Atualiza os dados de um cliente existente no banco de dados.
+
+    Apenas os campos fornecidos (diferentes de None) serão atualizados.
+
+    Args:
+        cliente_id (int): O ID do cliente a ser atualizado.
+        db (Session): A sessão do SQLAlchemy para interagir com o banco.
+        nome (str, optional): O novo nome do cliente. Defaults to None.
+        telefone (str, optional): O novo telefone do cliente. Defaults to None.
+        endereco (str, optional): O novo endereço do cliente. Defaults to None.
+        email (str, optional): O novo e-mail do cliente. Defaults to None.
+
+    Returns:
+        Cliente: O objeto Cliente com os dados atualizados.
+
+    Raises:
+        ValueError: Se o cliente com o ID fornecido não for encontrado.
+    """
     try:
         cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
         if not cliente:
@@ -55,7 +79,6 @@ def atualizar_cliente(cliente_id, db, nome=None, telefone=None, endereco=None, e
         db.rollback()
         raise e
 
-# CORREÇÃO: Trocado 'session' por 'db'.
 def deletar_cliente(cliente_id, db):
     """Deleta um cliente do banco de dados."""
     try:
