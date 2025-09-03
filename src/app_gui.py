@@ -9,6 +9,7 @@ import re ,os, threading, queue
 from sqlalchemy.orm import joinedload
 import traceback
 from .services.email_service import enviar_email_smtp
+from .gerador_pdf import criar_corpo_html_orcamento
 
 
 class App(ctk.CTk):
@@ -477,7 +478,7 @@ class App(ctk.CTk):
         """
 
         caminho_pdf = os.path.abspath(f"orcamento_{orcamento_id}_temp.pdf")
-        
+        caminho_logo = os.path.abspath("fence.logo1.png")
         try:
             with SessionLocal() as session:
                 orcamento = session.query(Orcamento).options(joinedload(Orcamento.cliente)).filter(Orcamento.id == orcamento_id).first()
@@ -486,15 +487,16 @@ class App(ctk.CTk):
 
                 gerar_orcamento(orcamento, caminho_pdf)
 
-                assunto = f"Seu Orçamento Nº {orcamento.id} - [Nome da Sua Empresa]"
-                corpo_html = f"<p>Olá, {orcamento.cliente.nome},</p><p>Segue o orçamento em anexo.</p>"
+                assunto = f"Fence Estimate Nº {orcamento.id} - Nunes Fence LLC"
+                corpo_html = criar_corpo_html_orcamento(orcamento)
                 
                 # MUDANÇA 2: Chamando a função correta (enviar_email_smtp)
                 enviar_email_smtp(
                     destinatario=orcamento.cliente.email,
                     assunto=assunto,
                     corpo_html=corpo_html,
-                    caminho_anexo=caminho_pdf
+                    caminho_anexo=caminho_pdf,
+                    caminho_imagem_embutida=caminho_logo
                 )
             
             fila.put("SUCESSO")

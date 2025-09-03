@@ -6,6 +6,7 @@ from reportlab.lib import colors
 import json
 from collections import Counter
 
+
 def formatar_portoes(portoes_json_str: str) -> str:
     """
     Recebe uma string JSON de portões e a formata para um texto legível.
@@ -18,20 +19,22 @@ def formatar_portoes(portoes_json_str: str) -> str:
     try:
         # 1. Converte a string JSON para um dicionário Python
         portoes_dict = json.loads(portoes_json_str)
-        
+
         # 2. Conta a ocorrência de cada tipo de portão (ex: 'single', 'double')
         contagem = Counter(portoes_dict.values())
-        
+
         # 3. Monta as partes da string final
         partes_formatadas = []
         if contagem['single'] > 0:
             # Adiciona "s" se for plural
             sufixo = 's' if contagem['single'] > 1 else ''
-            partes_formatadas.append(f"{contagem['single']} Single Gate{sufixo}")
-        
+            partes_formatadas.append(
+                f"{contagem['single']} Single Gate{sufixo}")
+
         if contagem['double'] > 0:
             sufixo = 's' if contagem['double'] > 1 else ''
-            partes_formatadas.append(f"{contagem['double']} Double Gate{sufixo}")
+            partes_formatadas.append(
+                f"{contagem['double']} Double Gate{sufixo}")
 
         return ", ".join(partes_formatadas)
 
@@ -39,37 +42,37 @@ def formatar_portoes(portoes_json_str: str) -> str:
         # Retorna o dado bruto se não for um JSON válido, para debug
         return portoes_json_str
 
+
 def gerar_orcamento(orcamento: Orcamento, caminho_arquivo: str):
     """Gera um PDF de orçamento a partir dos dados do orçamento."""
-
 
     orcamento_pdf = SimpleDocTemplate(caminho_arquivo)
 
     styles = getSampleStyleSheet()
     estilo_titulo = ParagraphStyle(name="Titulo", parent=styles['Normal'],
-                                fontName="Helvetica-Bold",
-                                fontSize=14,
-                                leading=22,
-                                alignment=TA_CENTER
-                                )
+                                   fontName="Helvetica-Bold",
+                                   fontSize=14,
+                                   leading=22,
+                                   alignment=TA_CENTER
+                                   )
     estilo_normal = ParagraphStyle(name="Normal", parent=styles['Normal'],
-                                fontName="Helvetica",
-                                fontSize=11,
-                                leading=14,
-                                alignment=TA_LEFT
-                                )
+                                   fontName="Helvetica",
+                                   fontSize=11,
+                                   leading=14,
+                                   alignment=TA_LEFT
+                                   )
     estilo_endereco = ParagraphStyle(name="Endereco", parent=styles['Normal'],
-                                    fontName="Helvetica",
-                                    fontSize=10,
-                                    leading=14,
-                                    alignment=TA_LEFT
-                                    )
+                                     fontName="Helvetica",
+                                     fontSize=10,
+                                     leading=14,
+                                     alignment=TA_LEFT
+                                     )
     estilo_bold = ParagraphStyle(name="Bold", parent=styles['Normal'],
-                                fontName="Helvetica-Bold",
-                                fontSize=10,
-                                leading=22,
-                                alignment=TA_CENTER
-                                )
+                                 fontName="Helvetica-Bold",
+                                 fontSize=10,
+                                 leading=22,
+                                 alignment=TA_CENTER
+                                 )
 
     dados_cliente = [
         Paragraph(orcamento.cliente.nome, estilo_endereco),
@@ -100,7 +103,6 @@ def gerar_orcamento(orcamento: Orcamento, caminho_arquivo: str):
         ('GRID', (0, 0), (-1, -1), 1, colors.black)  # Adiciona uma grade
     ]))
 
-
     story = []
 
     image = Image("fence.logo1.png", width=200, height=100)
@@ -116,7 +118,7 @@ def gerar_orcamento(orcamento: Orcamento, caminho_arquivo: str):
     story.append(dados_cliente[3])
     story.append(Spacer(1, 20))
     story.append(Paragraph("Thank you for considering Nunes Fence LLC for your fencing needs. "
-                        "We are pleased to provide you with the following proposal based on the specifications discussed:", estilo_normal))
+                           "We are pleased to provide you with the following proposal based on the specifications discussed:", estilo_normal))
     story.append(Spacer(1, 20))
     story.append(tabela)
     story.append(Spacer(1, 10))
@@ -124,7 +126,7 @@ def gerar_orcamento(orcamento: Orcamento, caminho_arquivo: str):
         Paragraph("Please note that this estimate is valid for 7 days.", estilo_bold))
     story.append(Spacer(1, 26))
     story.append(Paragraph("All materials and labor are included in this estimate. Our fences are built with high-quality"
-                        " materials and professional craftsmanship, ensuring durability and long-lasting performance.", estilo_normal))
+                           " materials and professional craftsmanship, ensuring durability and long-lasting performance.", estilo_normal))
     story.append(Spacer(1, 12))
     story.append(Paragraph(
         "To move forward, just reply to this email or reach us by call/text with any questions. We look forward to working with you!", estilo_normal))
@@ -138,3 +140,66 @@ def gerar_orcamento(orcamento: Orcamento, caminho_arquivo: str):
     story.append(Paragraph("Email: nunesfence12@gmail.com", estilo_endereco))
 
     orcamento_pdf.build(story)
+
+def criar_corpo_html_orcamento(orcamento: Orcamento) -> str:
+    """Cria uma string HTML formatada para o corpo do e-mail a partir de um orçamento."""
+
+    
+    portoes_formatados = formatar_portoes(orcamento.portoes)
+
+    # Usamos uma f-string multi-linha para construir o HTML de forma legível
+    html = f"""
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Helvetica, Arial, sans-serif; font-size: 11pt; color: #333; }}
+            .container {{ max-width: 680px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }}
+            .header {{ text-align: center; margin-bottom: 25px; }}
+            .titulo {{ font-size: 16pt; font-weight: bold; color: #000; margin-top: 10px; }}
+            .endereco {{ font-size: 10pt; line-height: 1.5; margin-bottom: 15px; }}
+            .bold {{ font-weight: bold; text-align: center; font-size: 10pt; margin-top: 20px; }}
+            table {{ width: 100%; border-collapse: collapse; margin: 25px 0; }}
+            th, td {{ border: 1px solid #cccccc; padding: 10px; text-align: left; }}
+            th {{ background-color: #f2f2f2; font-weight: bold; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="cid:fence.logo1.png" alt="Nunes Fence Logo" width="200">
+                <p class="titulo">Proposal for Fence Installation</p>
+            </div>
+            
+            <p>Dear {orcamento.cliente.nome},</p>
+            
+            <p>Thank you for considering Nunes Fence LLC for your fencing needs. We are pleased to provide you with the following proposal based on the specifications discussed:</p>
+
+            <table>
+                <tr><th>Fence Type:</th><td>{orcamento.material}</td></tr>
+                <tr><th>Color:</th><td>{orcamento.cor_material if orcamento.cor_material else 'N/A'}</td></tr>
+                <tr><th>Length:</th><td>{orcamento.metragem} ft</td></tr>
+                <tr><th>Gates:</th><td>{portoes_formatados if orcamento.portao else 'N/A'}</td></tr>
+                <tr><th>Estimated Cost:</th><td>$ {orcamento.valor_estimado:.2f}</td></tr>
+                <tr><th>Removal/Disposal:</th><td>FREE</td></tr>
+            </table>
+
+            <p class="bold">Please note that this estimate is valid for 7 days.</p>
+
+            <p>All materials and labor are included in this estimate. Our fences are built with high-quality materials and professional craftsmanship, ensuring durability and long-lasting performance.</p>
+            
+            <p>To move forward, just reply to this email or reach us by call/text with any questions. We look forward to working with you!</p>
+            
+            <p>Sincerely,</p>
+            
+            <div class="endereco">
+                <b>Nunes Fence LLC</b><br>
+                123 Main Street<br>
+                Orlando, Florida, 32801<br>
+                Phone: (351) 201-4314<br>
+                Email: nunesfence12@gmail.com
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return html
