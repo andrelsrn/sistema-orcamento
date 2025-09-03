@@ -4,6 +4,7 @@ from ..base import Base
 import json
 
 class Orcamento(Base):
+    """Representa um orçamento no sistema, associado a um cliente."""
     __tablename__ = "orcamentos"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -22,6 +23,7 @@ class Orcamento(Base):
     cliente = relationship("Cliente", back_populates="orcamentos")
 
     def __str__(self):
+        """Retorna uma representação textual amigável do orçamento."""
         tem_portao = "Sim" if self.portao else "Não"
         cor_info = f"Cor: {self.cor_material} | " if self.cor_material else ""
         

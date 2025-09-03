@@ -23,6 +23,7 @@ from .services.email_service import enviar_email_pdf
 
 
 def exibir_menu():
+    """Exibe o menu principal da aplicação CLI."""
     print('-=' * 20)
     print('CADASTRO DE ORCAMENTOS'.center(40))
     print('-=' * 20)
@@ -131,7 +132,7 @@ def orquestrar_cadastro_orcamento():
                     break
                 print("Tamanho inválido. Escolha 'Single' ou 'Double'.")
 
-    # 8. Cadastrar o orçamento através do sistema
+    
     # A função retorna o resultado de service_cadastrar_orcamento
     with SessionLocal() as session:
         return service_cadastrar_orcamento(
@@ -152,8 +153,8 @@ while True:
     exibir_menu()
     opcao = input("Escolha uma opção: ")
 
+    # Opção 1: Cadastrar Novo Cliente
     if opcao == "1":
-        # Coleta de dados sem validação duplicada
         nome = input("Digite o nome do cliente: ").strip()
         telefone = input(
             "Digite o telefone do cliente (11 dígitos, com DDD): ").strip()
@@ -161,18 +162,19 @@ while True:
         email = input("Digite o email do cliente: ").strip()
 
         try:
-            with SessionLocal() as session:  # Added session management
+            with SessionLocal() as session:
                 cliente = service_cadastrar_cliente(
-                    nome, telefone, endereco, email, db=session)  # Updated call
+                    nome, telefone, endereco, email, db=session)
 
             print(f"Cliente cadastrado com sucesso: {cliente}")
 
         except ValueError as e:
             print(f"Erro ao cadastrar cliente: {e}")
 
+    # Opção 2: Cadastrar Novo Orçamento
     elif opcao == "2":
         try:
-            orcamento = orquestrar_cadastro_orcamento()  # Removed 'sistema' parameter
+            orcamento = orquestrar_cadastro_orcamento()
             print(f"\nOrçamento cadastrado com sucesso!\n{orcamento}\n")
         except ValueError as e:
             # Erros de validação de dados ou de combinações de materiais
@@ -181,9 +183,10 @@ while True:
             # Captura outros erros inesperados para não quebrar o programa
             print(f"\nOcorreu um erro inesperado: {e}\n")
 
+    # Opção 3: Listar Orçamentos
     elif opcao == "3":
-        with SessionLocal() as session:  # Added session management
-            orcamentos = service_listar_orcamentos(db=session)  # Updated call
+        with SessionLocal() as session:
+            orcamentos = service_listar_orcamentos(db=session)
         if not orcamentos:
             print("Nenhum orçamento cadastrado.")
         else:
@@ -191,19 +194,21 @@ while True:
             for orcamento in orcamentos:
                 print(orcamento)
 
+    # Opção 4: Consultar Orçamento por Nome
     elif opcao == "4":
         nome_cliente = input(
             "Digite o nome do cliente para consultar o orçamento: ")
         try:
-            with SessionLocal() as session:  # Added session management
+            with SessionLocal() as session:
                 orcamentos = service_consultar_orcamento_por_nome(
-                    nome_cliente, db=session)  # Updated call
+                    nome_cliente, db=session)
             print(f"Orçamentos encontrados para {nome_cliente}:")
             for orcamento in orcamentos:
                 print(orcamento)
         except ValueError as e:
             print(f"Erro ao consultar orçamento: {e}")
 
+    # Opção 5: Gerar PDF e Enviar por E-mail
     elif opcao == "5":
         try:
             orcamento_id_str = input(
@@ -244,7 +249,7 @@ while True:
                             email_remetente=REMETENTE_EMAIL
                         )
                         print(
-                            f"Email enviado para {orcamento_obj.cliente.email} com o anexo {nome_arquivo}.\\n")
+                            f"Email enviado para {orcamento_obj.cliente.email} com o anexo {nome_arquivo}.\n")
                     except Exception as email_error:
                         print(
                             f"ATENÇÃO: O PDF foi gerado, mas ocorreu um erro ao enviar o e-mail: {email_error}")
@@ -257,6 +262,8 @@ while True:
         except Exception as e:
             print(f"Ocorreu um erro ao gerar o PDF: {e}")
 
+    # Opção 6: Sair do Sistema
     elif opcao == "6":
         print("Saindo do sistema.")
         break
+

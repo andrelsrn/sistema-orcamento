@@ -17,13 +17,8 @@ def formatar_portoes(portoes_json_str: str) -> str:
         return "Nenhum"
 
     try:
-        # 1. Converte a string JSON para um dicionário Python
         portoes_dict = json.loads(portoes_json_str)
-
-        # 2. Conta a ocorrência de cada tipo de portão (ex: 'single', 'double')
         contagem = Counter(portoes_dict.values())
-
-        # 3. Monta as partes da string final
         partes_formatadas = []
         if contagem['single'] > 0:
             # Adiciona "s" se for plural
@@ -94,13 +89,13 @@ def gerar_orcamento(orcamento: Orcamento, caminho_arquivo: str):
 
     tabela = Table(dados_tabela)
     tabela.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Cabeçalho cinza
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)  # Adiciona uma grade
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
     ]))
 
     story = []
@@ -147,7 +142,6 @@ def criar_corpo_html_orcamento(orcamento: Orcamento) -> str:
     
     portoes_formatados = formatar_portoes(orcamento.portoes)
 
-    # Usamos uma f-string multi-linha para construir o HTML de forma legível
     html = f"""
     <html>
     <head>

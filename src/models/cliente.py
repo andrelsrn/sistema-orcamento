@@ -4,6 +4,7 @@ from ..base import Base
 import re  
 
 class Cliente(Base):
+    """Representa um cliente no sistema."""
     __tablename__ = "clientes"
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String, nullable=False)
@@ -50,6 +51,7 @@ class Cliente(Base):
         self.email = email
 
     def __str__(self):
+        """Retorna uma representação textual amigável do cliente."""
         return (
             f"ID: {self.id} | Nome: {self.nome} | Telefone: {self.telefone} | "
             f"Endereço: {self.endereco} | Email: {self.email}"
